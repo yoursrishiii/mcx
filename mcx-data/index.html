@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://cdnjs.cloudflare.com; base-uri 'self'; form-action 'none'; object-src 'none'" />
+<meta name="referrer" content="no-referrer" />
+<meta name="color-scheme" content="dark" />
+<title>GoldSpread — MCX Gold Cross-Contract Intelligence</title>
+<meta name="description" content="GoldSpread normalizes MCX gold futures (GOLDM, GOLDTEN, GOLDGUINEA, GOLDPETAL) to a per-gram, purity-adjusted basis and flags cross-contract dislocations only after transaction costs." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='15' fill='%23FFC107' text-anchor='middle'%3EGS%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ============================================================
+   GoldSpread — dark trading-terminal theme
+   ============================================================ */
+:root{
+  --bg:#0a0a0a; --bg2:#111111; --card:#161616; --card2:#1b1b1b; --line:#2a2a2a;
+  --gold:#FFC107; --gold2:#F5B301; --gold-dim:#8a6d05; --gold-glow:rgba(255,193,7,.28);
+  --text:#e6e6e6; --dim:#8f8f8f; --dim2:#666;
+  --green:#00c853; --red:#ff5252;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:10px; --r2:14px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg); color:var(--text); font-family:var(--sans);
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  min-height:100vh; overflow-x:hidden;
+}
+a{color:var(--gold); text-decoration:none}
+a:hover{text-decoration:underline}
+h1,h2,h3,h4{margin:0 0 .5rem; line-height:1.22; letter-spacing:-.015em; font-weight:700}
+p{margin:0 0 .8rem}
+.hidden{display:none !important}
+.mono{font-family:var(--mono); font-feature-settings:'tnum' 1; font-variant-numeric:tabular-nums}
+.up{color:var(--green)}
+.down{color:var(--red)}
+.flat{color:var(--dim)}
+.gold{color:var(--gold)}
+small{font-size:12.5px; color:var(--dim)}
+
+/* scrollbars */
+*{scrollbar-width:thin; scrollbar-color:#2c2c2c #0f0f0f}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#0f0f0f}
+::-webkit-scrollbar-thumb{background:#2c2c2c;border-radius:8px;border:2px solid #0f0f0f}
+::-webkit-scrollbar-thumb:hover{background:#3d3d3d}
+
+:focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:4px}
+
+/* ---------- layout helpers ---------- */
+.wrap{max-width:1320px; margin:0 auto; padding:22px 20px 60px}
+.page{animation:fade .35s ease both}
+@keyframes fade{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+.grid{display:grid; gap:16px}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.spacer{flex:1}
+.eyebrow{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--dim2); font-weight:600}
+.section-title{font-size:17px; margin:0; letter-spacing:-.01em}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r2);
+  padding:18px; transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.card:hover{border-color:#333}
+.card-head{display:flex; align-items:center; gap:10px; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap}
+.divider{height:1px; background:var(--line); margin:14px 0}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-family:var(--sans); font-size:14px; font-weight:600; letter-spacing:.01em;
+  padding:10px 16px; border-radius:8px; border:1px solid var(--line);
+  background:#1d1d1d; color:var(--text); cursor:pointer;
+  transition:background .18s ease, border-color .18s ease, box-shadow .22s ease, transform .12s ease, color .18s ease;
+}
+.btn:hover{background:#242424; border-color:#3a3a3a}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.55; cursor:not-allowed}
+.btn-gold{
+  background:linear-gradient(180deg,#FFC107,#F5B301); border-color:#FFC107; color:#1a1400; font-weight:700;
+}
+.btn-gold:hover{background:linear-gradient(180deg,#ffcf35,#f7bf1a); border-color:#ffd24d; box-shadow:0 0 0 1px var(--gold-glow), 0 0 22px var(--gold-glow)}
+.btn-outline{background:transparent; border-color:#3a3a3a; color:var(--gold)}
+.btn-outline:hover{border-color:var(--gold); background:rgba(255,193,7,.07); box-shadow:0 0 16px rgba(255,193,7,.16)}
+.btn-ghost{background:transparent; border-color:transparent; color:var(--dim)}
+.btn-ghost:hover{color:var(--gold); background:rgba(255,193,7,.06); border-color:transparent}
+.btn-block{width:100%}
+.btn-sm{padding:7px 12px; font-size:13px}
+
+/* ---------- badges ---------- */
+.badge{
+  display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600;
+  padding:4px 9px; border-radius:999px; border:1px solid var(--line); background:#1c1c1c; color:var(--dim);
+  letter-spacing:.02em; white-space:nowrap;
+}
+.badge-gold{border-color:rgba(255,193,7,.35); color:var(--gold); background:rgba(255,193,7,.08)}
+.badge-green{border-color:rgba(0,200,83,.35); color:var(--green); background:rgba(0,200,83,.08)}
+.badge-red{border-color:rgba(255,82,82,.35); color:var(--red); background:rgba(255,82,82,.08)}
+.badge-lock{border-color:var(--line); color:#bfbfbf; background:#141414}
+.badge-sample{border-color:#3a3a3a; color:#c9c9c9; background:#151515}
+.dot{width:7px; height:7px; border-radius:50%; background:currentColor; display:inline-block}
+.pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1; transform:scale(1)}50%{opacity:.45; transform:scale(.82)}}
+
+/* ---------- auth / login ---------- */
+.auth-shell{
+  min-height:100vh; display:grid; grid-template-columns:1.05fr .95fr; align-items:stretch;
+}
+.auth-brand{
+  position:relative; padding:46px 44px; border-right:1px solid var(--line);
+  background:
+    radial-gradient(760px 420px at 8% 0%, rgba(255,193,7,.10), transparent 60%),
+    radial-gradient(520px 380px at 92% 100%, rgba(245,179,1,.06), transparent 62%),
+    var(--bg2);
+  display:flex; flex-direction:column; gap:22px; overflow:hidden;
+}
+.auth-brand::after{
+  content:''; position:absolute; inset:0; pointer-events:none; opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+  background-size:44px 44px;
+}
+.brand{display:inline-flex; align-items:center; gap:10px; text-decoration:none}
+.brand:hover{text-decoration:none}
+.brand-mark{
+  width:34px; height:34px; border-radius:9px; display:grid; place-items:center;
+  background:linear-gradient(145deg,#FFC107,#c9930a); color:#170f00; font-family:var(--mono); font-weight:700; font-size:13px;
+  box-shadow:0 0 18px rgba(255,193,7,.22);
+}
+.brand-txt{font-size:17px; font-weight:800; letter-spacing:-.02em; color:#fff}
+.brand-txt em{font-style:normal; color:var(--gold)}
+.auth-headline{font-size:34px; line-height:1.14; margin:6px 0 0; letter-spacing:-.03em}
+.auth-sub{color:var(--dim); max-width:52ch; font-size:14.5px}
+.auth-features{list-style:none; padding:0; margin:4px 0 0; display:grid; gap:11px; position:relative; z-index:1}
+.auth-features li{display:flex; gap:10px; align-items:flex-start; font-size:14px; color:#cfcfcf}
+.tick-gold{color:var(--gold); font-family:var(--mono); font-weight:700; line-height:1.5}
+.auth-side{display:flex; align-items:center; justify-content:center; padding:38px 24px; background:var(--bg)}
+.auth-card{
+  width:100%; max-width:440px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:26px;
+  box-shadow:0 24px 60px rgba(0,0,0,.5);
+}
+.tabs{display:flex; gap:6px; background:#101010; border:1px solid var(--line); padding:5px; border-radius:10px; margin-bottom:20px}
+.tab{
+  flex:1; text-align:center; padding:9px 10px; border-radius:7px; font-size:13.5px; font-weight:600;
+  color:var(--dim); cursor:pointer; border:1px solid transparent; background:transparent; font-family:var(--sans);
+  transition:all .18s ease;
+}
+.tab:hover{color:var(--text)}
+.tab.active{background:#222; color:var(--gold); border-color:#333; box-shadow:0 0 14px rgba(255,193,7,.10)}
+.field{margin-bottom:14px}
+.field label{display:block; font-size:12.5px; font-weight:600; color:#b9b9b9; margin-bottom:6px; letter-spacing:.01em}
+.input{
+  width:100%; padding:11px 12px; border-radius:8px; background:#101010; color:var(--text);
+  border:1px solid #2f2f2f; font-family:var(--sans); font-size:14.5px; transition:border-color .18s ease, box-shadow .18s ease;
+}
+.input::placeholder{color:#5c5c5c}
+.input:hover{border-color:#3a3a3a}
+.input:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(255,193,7,.13)}
+.input.err{border-color:var(--red)}
+.pw-wrap{position:relative}
+.pw-wrap .input{padding-right:70px}
+.pw-toggle{
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  background:transparent; border:none; color:var(--dim); font-size:11.5px; font-weight:700; letter-spacing:.06em;
+  cursor:pointer; padding:6px 8px; border-radius:6px; font-family:var(--sans);
+}
+.pw-toggle:hover{color:var(--gold); background:rgba(255,193,7,.08)}
+.hint{font-size:12px; color:var(--dim2); margin-top:6px}
+.err-msg{font-size:12.5px; color:var(--red); margin-top:6px; min-height:1px}
+.check{display:flex; gap:9px; align-items:flex-start; font-size:13px; color:#c3c3c3; margin:4px 0 14px}
+.check input[type=checkbox]{width:16px; height:16px; margin-top:2px; accent-color:var(--gold); cursor:pointer; flex:none}
+.check a{white-space:nowrap}
+.meter{display:flex; gap:5px; margin-top:8px}
+.meter i{height:4px; flex:1; border-radius:3px; background:#262626; transition:background .25s ease}
+.meter i.on-weak{background:var(--red)}
+.meter i.on-fair{background:#ffab40}
+.meter i.on-good{background:var(--gold)}
+.meter i.on-strong{background:var(--green)}
+.strength-line{display:flex; justify-content:space-between; font-size:12px; color:var(--dim); margin-top:6px}
+.form-foot{margin-top:16px; font-size:13px; color:var(--dim); text-align:center}
+.secure-badge{display:flex; justify-content:center; margin-top:18px}
+.alertbox{
+  border-radius:9px; padding:11px 13px; font-size:13.5px; border:1px solid; margin-bottom:16px; display:flex; gap:9px; align-items:flex-start;
+}
+.alertbox.info{border-color:rgba(255,193,7,.3); background:rgba(255,193,7,.07); color:#f0dc9a}
+.alertbox.err{border-color:rgba(255,82,82,.35); background:rgba(255,82,82,.08); color:#ffb3b3}
+.alertbox.ok{border-color:rgba(0,200,83,.32); background:rgba(0,200,83,.07); color:#9fe9bd}
+
+/* ---------- terms ---------- */
+.terms-shell{max-width:1120px; margin:0 auto; padding:30px 20px 70px; display:grid; grid-template-columns:262px 1fr; gap:30px; align-items:start}
+.toc{position:sticky; top:22px; background:var(--card); border:1px solid var(--line); border-radius:var(--r2); padding:16px; max-height:calc(100vh - 44px); overflow:auto}
+.toc h3{font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim2); margin-bottom:10px}
+.toc ol{list-style:none; counter-reset:t; padding:0; margin:0; font-size:13px}
+.toc li{counter-increment:t; margin-bottom:2px}
+.toc a{display:block; padding:6px 8px; border-radius:6px; color:#c6c6c6; border-left:2px solid transparent; font-size:13px}
+.toc a::before{content:counter(t) ". "; color:var(--gold-dim); font-family:var(--mono); font-size:11.5px}
+.toc a:hover{background:#1e1e1e; text-decoration:none; color:#fff}
+.toc a.active{color:var(--gold); border-left-color:var(--gold); background:rgba(255,193,7,.07)}
+.terms-body{background:var(--card); border:1px solid var(--line); border-radius:var(--r2); padding:28px}
+.terms-body h2{font-size:19px; margin-top:26px; scroll-margin-top:22px; display:flex; gap:10px; align-items:baseline}
+.terms-body h2:first-of-type{margin-top:0}
+.terms-body h2 span.num{font-family:var(--mono); font-size:14px; color:var(--gold)}
+.terms-body p, .terms-body li{color:#c9c9c9; font-size:14.3px}
+.terms-body ul{padding-left:20px; margin:0 0 12px}
+.terms-body li{margin-bottom:5px}
+.terms-note{border-left:3px solid var(--gold); background:rgba(255,193,7,.06); padding:12px 14px; border-radius:0 8px 8px 0; margin:14px 0}
+
+/* ---------- dashboard topbar ---------- */
+.topbar{
+  display:flex; align-items:center; gap:14px; padding:12px 20px; border-bottom:1px solid var(--line);
+  background:rgba(13,13,13,.94); backdrop-filter:blur(8px); position:sticky; top:0; z-index:40; flex-wrap:wrap;
+}
+.tb-left{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.tb-right{display:flex; align-items:center; gap:10px; margin-left:auto; flex-wrap:wrap}
+.user-chip{display:flex; align-items:center; gap:8px; background:#1a1a1a; border:1px solid var(--line); padding:5px 11px 5px 5px; border-radius:999px; font-size:13.5px}
+.avatar{
+  width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:700;
+  background:linear-gradient(145deg,#FFC107,#c9930a); color:#1a1400; font-family:var(--mono);
+}
+.ticker{overflow:hidden; border-bottom:1px solid var(--line); background:#0d0d0d; position:relative}
+.ticker-track{display:flex; gap:38px; width:max-content; padding:9px 0; animation:marquee 42s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tk{display:flex; align-items:baseline; gap:8px; font-family:var(--mono); font-size:13px; white-space:nowrap}
+.tk b{color:var(--gold); font-weight:700}
+.tk u{text-decoration:none; color:var(--dim); font-size:11.5px}
+
+/* ---------- KPI + contract cards ---------- */
+.kpi-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-bottom:16px}
+.kpi{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:14px 15px}
+.kpi .k-label{font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--dim2); font-weight:600}
+.kpi .k-val{font-family:var(--mono); font-size:21px; font-weight:700; margin-top:6px; color:var(--gold)}
+.kpi .k-sub{font-size:12px; color:var(--dim); margin-top:3px}
+.contracts{display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:14px; margin-bottom:18px}
+.ccard{background:var(--card); border:1px solid var(--line); border-radius:var(--r2); padding:16px; position:relative; overflow:hidden; transition:border-color .2s ease, box-shadow .2s ease}
+.ccard:hover{border-color:#3a3a3a; box-shadow:0 0 22px rgba(255,193,7,.07)}
+.ccard::before{content:''; position:absolute; inset:0 0 auto; height:2px; background:linear-gradient(90deg,var(--gold),transparent 70%); opacity:.75}
+.ccard-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px}
+.ccard-code{font-family:var(--mono); font-size:15px; font-weight:700; color:var(--gold); letter-spacing:.02em}
+.ccard-name{font-size:12px; color:var(--dim); margin-top:1px}
+.ccard-price{font-family:var(--mono); font-size:26px; font-weight:700; margin:12px 0 2px; letter-spacing:-.02em}
+.ccard-price small{font-size:12px; color:var(--dim); font-weight:500; margin-left:5px; font-family:var(--sans)}
+.ccard-meta{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; font-size:12.5px}
+.ccard-meta div{background:#121212; border:1px solid #232323; border-radius:7px; padding:7px 9px}
+.ccard-meta span{display:block; color:var(--dim2); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase}
+.ccard-meta b{font-family:var(--mono); font-weight:600; color:#dcdcdc; font-size:13px}
+.formula{
+  background:#101010; border:1px dashed #333; border-radius:9px; padding:12px 14px; margin:6px 0 18px;
+  font-family:var(--mono); font-size:13px; color:#d8d8d8; overflow-x:auto;
+}
+.formula b{color:var(--gold)}
+
+/* ---------- charts ---------- */
+.charts{display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:18px}
+.chart-box{position:relative; height:330px; width:100%}
+.legend-inline{display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--dim)}
+.legend-inline i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px}
+
+/* ---------- signal panel ---------- */
+.panel-grid{display:grid; grid-template-columns:300px 1fr; gap:16px; align-items:start}
+.controls{display:grid; gap:14px}
+.ctrl label{display:block; font-size:12.5px; font-weight:600; color:#b9b9b9; margin-bottom:7px}
+.ctrl .val{font-family:var(--mono); color:var(--gold); font-weight:700}
+input[type=range]{width:100%; accent-color:var(--gold); height:22px}
+.numrow{display:flex; gap:8px}
+.numrow .input{flex:1}
+.state{border-radius:var(--r2); border:1px solid; padding:18px; display:flex; gap:14px; align-items:flex-start; transition:all .25s ease}
+.state-quiet{border-color:#2f3a33; background:linear-gradient(180deg,rgba(0,200,83,.055),rgba(0,0,0,0)); }
+.state-quiet .state-icon{color:var(--green)}
+.state-signal{border-color:rgba(255,193,7,.45); background:linear-gradient(180deg,rgba(255,193,7,.10),rgba(0,0,0,0)); box-shadow:0 0 26px rgba(255,193,7,.10)}
+.state-signal .state-icon{color:var(--gold)}
+.state-icon{font-size:22px; line-height:1}
+.state h3{font-size:17px; margin-bottom:4px}
+.state p{margin:0; color:#c9c9c9; font-size:13.8px}
+.state-quiet h3{color:#b9e8c9}
+.state-signal h3{color:var(--gold)}
+.sig-list{list-style:none; padding:0; margin:12px 0 0; display:grid; gap:8px}
+.sig-list li{background:#121212; border:1px solid #262626; border-radius:9px; padding:10px 12px; font-size:13.5px}
+.sig-list .sig-head{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:4px}
+.sig-list .sig-code{font-family:var(--mono); font-weight:700; color:var(--gold)}
+.sig-list .sig-body{color:#c4c4c4; font-size:12.8px}
+.reason{color:var(--dim); font-size:12.5px}
+
+/* ---------- tables ---------- */
+.table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
+table{width:100%; border-collapse:collapse; font-size:13.5px; min-width:560px}
+th,td{text-align:left; padding:10px 12px; border-bottom:1px solid #232323; vertical-align:top}
+th{font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--dim2); font-weight:600; background:#131313; position:sticky; top:0}
+td.num,th.num{text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums}
+tbody tr:hover{background:#1a1a1a}
+.cmp th:last-child, .cmp td:last-child{background:rgba(255,193,7,.045)}
+.cmp td:last-child{color:#f0e2b0}
+.verdict{font-family:var(--mono); font-weight:700; font-size:12.5px}
+
+/* ---------- backtest ---------- */
+.bt-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin:12px 0}
+.bt-cell{background:#121212; border:1px solid #242424; border-radius:9px; padding:12px}
+.bt-cell .bl{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim2); font-weight:600}
+.bt-cell .bv{font-family:var(--mono); font-size:18px; font-weight:700; margin-top:5px}
+.honest{border-left:3px solid var(--gold); background:rgba(255,193,7,.06); padding:11px 14px; border-radius:0 8px 8px 0; font-size:13.5px; color:#eddfae; margin-top:12px}
+.tag-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+
+/* ---------- hygiene ---------- */
+.hygiene{list-style:none; padding:0; margin:0; display:grid; gap:10px}
+.hygiene li{display:flex; gap:11px; align-items:flex-start; background:#121212; border:1px solid #242424; border-radius:9px; padding:11px 13px}
+.hygiene .hcheck{color:var(--green); font-family:var(--mono); font-weight:700; flex:none}
+.hygiene .htxt{font-size:13.4px; color:#cdcdcd}
+.hygiene .htxt b{color:#fff; font-weight:600}
+.hygiene .hcode{font-family:var(--mono); color:var(--gold); font-size:12.3px}
+
+/* ---------- toast + modal ---------- */
+#toasts{position:fixed; right:16px; bottom:16px; z-index:80; display:grid; gap:10px; max-width:360px}
+.toast{
+  background:#171717; border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:9px; padding:11px 14px;
+  font-size:13.5px; box-shadow:0 14px 34px rgba(0,0,0,.55); animation:fade .25s ease both;
+}
+.toast.ok{border-left-color:var(--green)}
+.toast.err{border-left-color:var(--red)}
+.modal-back{position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(3px); z-index:70; display:flex; align-items:center; justify-content:center; padding:18px}
+.modal{background:var(--card); border:1px solid var(--line); border-radius:14px; max-width:600px; width:100%; max-height:86vh; overflow:auto; padding:22px}
+.modal h3{color:var(--gold)}
+.modal ul{padding-left:19px; color:#c9c9c9; font-size:14px}
+.modal li{margin-bottom:7px}
+
+/* ---------- footer ---------- */
+.foot{margin-top:26px; border-top:1px solid var(--line); padding-top:16px; color:var(--dim); font-size:12.6px}
+.foot strong{color:#c9c9c9}
+
+/* ---------- responsive ---------- */
+@media (max-width:1080px){
+  .auth-shell{grid-template-columns:1fr}
+  .auth-brand{border-right:none; border-bottom:1px solid var(--line); padding:32px 24px}
+  .auth-headline{font-size:27px}
+  .terms-shell{grid-template-columns:1fr}
+  .toc{position:static; max-height:none}
+  .panel-grid{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  body{font-size:14.5px}
+  .wrap{padding:16px 13px 50px}
+  .topbar{padding:10px 13px; gap:9px}
+  .tb-right{width:100%; margin-left:0; justify-content:space-between}
+  .auth-card{padding:20px}
+  .terms-body{padding:18px}
+  .card{padding:14px}
+  .chart-box{height:280px}
+  .ccard-price{font-size:22px}
+  table{font-size:12.8px; min-width:520px}
+  th,td{padding:8px 9px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important}
+}
+</style>
+</head>
+<body>
+<main id="main">
+<!-- ============ LOGIN ============ -->
+<section id="view-login" class="page hidden">
+  <div class="auth-shell">
+    <aside class="auth-brand">
+      <a class="brand" href="#/login">
+        <span class="brand-mark" aria-hidden="true">GS</span>
+        <span class="brand-txt">Gold<em>Spread</em></span>
+      </a>
+      <div>
+        <div class="eyebrow">MCX gold futures · cross-contract analytics</div>
+        <h1 class="auth-headline">One gram of gold.<br><span class="gold">Four contract prices.</span></h1>
+        <p class="auth-sub">GOLDM, GOLDTEN, GOLDGUINEA and GOLDPETAL all settle against the same underlying metal. GoldSpread normalizes each contract to a purity-adjusted per-gram price, then measures the differences — and tells you when there is nothing worth doing.</p>
+      </div>
+      <ul class="auth-features">
+        <li><span class="tick-gold">✓</span><span>Per-gram, purity-adjusted normalization across 995 and 999 purity contracts.</span></li>
+        <li><span class="tick-gold">✓</span><span>Expiry-aware series built from real <b>expiry_date</b> — no naive stitched near-month line.</span></li>
+        <li><span class="tick-gold">✓</span><span>Cost-aware signals: the spread must clear transaction costs before anything is flagged.</span></li>
+        <li><span class="tick-gold">✓</span><span>Walk-forward backtest with honesty reporting — quiet by default, auditable by design.</span></li>
+      </ul>
+      <div class="row" style="margin-top:auto; position:relative; z-index:1">
+        <span class="badge badge-lock">🔒 Secured with HTTPS + client-side encryption</span>
+        <button class="btn btn-ghost btn-sm" type="button" data-open-security="1">Security details</button>
+      </div>
+    </aside>
+
+    <div class="auth-side">
+      <div class="auth-card">
+        <div class="tabs" role="tablist" aria-label="Authentication">
+          <button class="tab active" type="button" role="tab" data-tab="login" aria-selected="true">Login</button>
+          <button class="tab" type="button" role="tab" data-tab="signup" aria-selected="false">Create account</button>
+        </div>
+
+        <div id="authAlert" class="alertbox hidden" role="status" aria-live="polite"></div>
+
+        <!-- LOGIN FORM -->
+        <form id="loginForm" novalidate autocomplete="on">
+          <div class="field">
+            <label for="liEmail">Email address</label>
+            <input class="input" id="liEmail" name="email" type="email" placeholder="you@example.com" autocomplete="username" spellcheck="false" />
+            <div class="err-msg" id="liEmailErr"></div>
+          </div>
+          <div class="field">
+            <label for="liPassword">Password</label>
+            <div class="pw-wrap">
+              <input class="input" id="liPassword" name="password" type="password" placeholder="Your password" autocomplete="current-password" />
+              <button class="pw-toggle" type="button" data-pw-toggle="liPassword" aria-label="Show password">SHOW</button>
+            </div>
+            <div class="err-msg" id="liPasswordErr"></div>
+          </div>
+          <label class="check">
+            <input type="checkbox" id="liRemember" checked />
+            <span>Remember me on this device</span>
+          </label>
+          <button class="btn btn-gold btn-block" type="submit" id="liSubmit">Sign in to dashboard</button>
+          <div class="form-foot">No account yet? <a href="#/login" data-tab-jump="signup">Create one</a> · <a href="#/terms">Terms &amp; Conditions</a></div>
+        </form>
+
+        <!-- SIGNUP FORM -->
+        <form id="signupForm" class="hidden" novalidate autocomplete="on">
+          <div class="field">
+            <label for="suName">Full name</label>
+            <input class="input" id="suName" name="name" type="text" placeholder="e.g. Ananya Rao" autocomplete="name" />
+            <div class="err-msg" id="suNameErr"></div>
+          </div>
+          <div class="field">
+            <label for="suEmail">Email address</label>
+            <input class="input" id="suEmail" name="email" type="email" placeholder="you@example.com" autocomplete="username" spellcheck="false" />
+            <div class="err-msg" id="suEmailErr"></div>
+          </div>
+          <div class="field">
+            <label for="suPassword">Password <span style="font-weight:400;color:#777">(minimum 8 characters)</span></label>
+            <div class="pw-wrap">
+              <input class="input" id="suPassword" name="password" type="password" placeholder="Create a strong password" autocomplete="new-password" />
+              <button class="pw-toggle" type="button" data-pw-toggle="suPassword" aria-label="Show password">SHOW</button>
+            </div>
+            <div class="meter" id="pwMeter" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="strength-line"><span id="pwStrength">Password strength: —</span><span id="pwLen" class="mono">0 chars</span></div>
+            <div class="err-msg" id="suPasswordErr"></div>
+          </div>
+          <div class="field">
+            <label for="suConfirm">Confirm password</label>
+            <div class="pw-wrap">
+              <input class="input" id="suConfirm" name="confirm" type="password" placeholder="Re-enter password" autocomplete="new-password" />
+              <button class="pw-toggle" type="button" data-pw-toggle="suConfirm" aria-label="Show password">SHOW</button>
+            </div>
+            <div class="err-msg" id="suConfirmErr"></div>
+          </div>
+          <label class="check">
+            <input type="checkbox" id="suTerms" />
+            <span>I agree to the <a href="#/terms" target="_self">Terms &amp; Conditions</a> and understand that GoldSpread provides analytics only, not investment advice.</span>
+          </label>
+          <div class="err-msg" id="suTermsErr" style="margin-top:-8px;margin-bottom:12px"></div>
+          <button class="btn btn-gold btn-block" type="submit" id="suSubmit">Create account</button>
+          <div class="form-foot">Registration is stored only in this browser (demo auth).</div>
+        </form>
+
+        <div class="secure-badge">
+          <span class="badge badge-lock">🔒 Secured with HTTPS + client-side encryption</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ TERMS ============ -->
+<section id="view-terms" class="page hidden">
+  <div class="terms-shell">
+    <nav class="toc" id="toc" aria-label="Table of contents">
+      <h3>Contents</h3>
+      <ol id="tocList"></ol>
+      <div class="divider"></div>
+      <div class="row"><button class="btn btn-sm" type="button" data-back-login="1">← Back to login</button></div>
+      <div class="row" style="margin-top:8px"><button class="btn btn-gold btn-sm" type="button" data-accept-terms="1">I Accept</button></div>
+    </nav>
+    <article class="terms-body">
+      <div class="eyebrow">Legal</div>
+      <h1 style="font-size:26px;margin-top:6px">Terms &amp; Conditions</h1>
+      <p style="color:#8f8f8f;font-size:13.5px">Last updated: 2 October 2026 · Version 1.0</p>
+      <div class="terms-note">
+        <b class="gold">Plain-language summary.</b> GoldSpread is an analytics and education tool for MCX gold futures cross-contract spreads. It does not place orders, does not manage money, and does not give investment advice. Trading commodity derivatives carries a high risk of loss. All figures in this demo are computed from sample data, not live market data.
+      </div>
+      <div id="termsSections"></div>
+      <div class="divider"></div>
+      <div class="row">
+        <button class="btn" type="button" data-back-login="1">← Back to login</button>
+        <button class="btn btn-gold" type="button" data-accept-terms="1">I Accept</button>
+      </div>
+    </article>
+  </div>
+</section>
+<!-- ============ DASHBOARD ============ -->
+<section id="view-dashboard" class="page hidden">
+  <header class="topbar">
+    <div class="tb-left">
+      <a class="brand" href="#/dashboard">
+        <span class="brand-mark" aria-hidden="true">GS</span>
+        <span class="brand-txt">Gold<em>Spread</em></span>
+      </a>
+      <span class="badge badge-gold"><span class="dot pulse"></span> MCX gold · normalized</span>
+      <span class="badge badge-sample" title="The snapshot section is real MCX Bhavcopy data. History, signals and the backtest are simulated until more daily files are loaded.">Real snapshot + simulated history</span>
+    </div>
+    <div class="tb-right">
+      <span class="badge badge-lock" id="sessionClock" title="Auto-logout after 15 minutes of inactivity">⏱ 15:00</span>
+      <button class="btn btn-ghost btn-sm" type="button" data-open-security="1">Security</button>
+      <span class="user-chip"><span class="avatar" id="userAvatar" aria-hidden="true">—</span><span id="userName">—</span></span>
+      <button class="btn btn-sm" type="button" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div class="ticker" aria-label="Contract ticker">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+
+  <div class="wrap">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <div>
+          <div class="eyebrow">Dashboard</div>
+          <h1 class="section-title" style="font-size:22px;margin-top:4px">Cross-contract gold spread desk</h1>
+        </div>
+        <div class="row">
+          <span class="badge" id="dataWindowBadge">—</span>
+          <span class="badge badge-green">Real MCX snapshot</span>
+          <span class="badge badge-sample">Simulated history</span>
+        </div>
+      </div>
+      <p style="margin:0; color:#a5a5a5; font-size:13.8px; max-width:96ch">
+        MCX lists four gold futures sizes that all reference the same metal. GoldSpread rebuilds each series from the exchange's daily Bhavcopy rows,
+        converts every contract to a <b class="gold">purity-adjusted price per gram</b>, then measures how far each contract drifts from the reference —
+        after transaction costs. When nothing clears costs, the desk stays quiet.
+      </p>
+    </div>
+
+    <div class="card" style="margin-bottom:16px" id="snapCard">
+      <div class="card-head">
+        <div>
+          <div class="eyebrow">Real exchange data</div>
+          <h2 class="section-title">MCX Bhavcopy snapshot — where the four contracts closed</h2>
+          <small>Purity-adjusted ₹ per gram of 999 gold, by contract month · spreads are measured against the reference contract chosen in the signal panel</small>
+        </div>
+        <div class="row">
+          <span class="badge badge-green" id="snapDate">—</span>
+          <span class="badge badge-sample" id="snapSrc">—</span>
+        </div>
+      </div>
+      <div class="honest" id="snapHonest">—</div>
+      <div class="legend-inline" id="snapLegend" style="margin:12px 0 6px"></div>
+      <div class="chart-box"><canvas id="chartSnap" aria-label="Per-gram price by contract month, real MCX Bhavcopy"></canvas></div>
+      <div class="table-scroll" style="margin-top:14px">
+        <table>
+          <thead>
+            <tr><th>Expiry</th><th>Contract</th><th class="num">₹ / g (999)</th><th class="num">Reference ₹ / g</th><th class="num">Spread</th><th>Basis</th><th class="num">Thinner leg (lots)</th><th>Verdict</th></tr>
+          </thead>
+          <tbody id="snapTable"></tbody>
+        </table>
+      </div>
+      <div class="hint" style="margin-top:10px" id="snapHint"></div>
+    </div>
+
+    <div class="kpi-row" id="kpiRow"></div>
+
+    <div class="eyebrow" style="margin-bottom:10px">Contracts tracked</div>
+    <div class="contracts" id="contractGrid"></div>
+
+    <div class="formula" role="note">
+      <b>Normalization logic</b> — &nbsp; per_gram = contract_price / grams_in_quote_unit &nbsp;→&nbsp; adjusted = per_gram × (999 / purity) &nbsp;→&nbsp; spread_bps = (adjusted / reference_adjusted − 1) × 10,000
+      <div style="margin-top:6px;color:#9a9a9a;font-size:12.3px;font-family:var(--sans)">
+        Every contract is re-based to one common basis: <b style="color:var(--gold)">₹ per gram of 999-purity gold</b>. GOLDM quotes 995-purity metal, so it is scaled by 999/995 = 1.00402; the 999 contracts are already on the reference basis (factor 1.00000). Prices are quoted per 10 g for GOLDM and GOLDTEN, per 8 g for GOLDGUINEA and per 1 g for GOLDPETAL — GOLDM has a 100 g lot but is still quoted per 10 g. Spreads are relative to the reference contract selected below.
+      </div>
+    </div>
+
+    <div class="charts">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="section-title">Normalized per-gram price — all four contracts</h2>
+            <small>Purity-adjusted ₹ per gram of 999 gold · expiry-aware series · simulated history</small>
+          </div>
+          <div class="legend-inline" id="chart1Legend"></div>
+        </div>
+        <div class="chart-box"><canvas id="chartPrices" aria-label="Normalized per-gram price over time"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="section-title">Spread vs reference contract</h2>
+            <small>Basis points, with the cost threshold band shaded</small>
+          </div>
+          <div class="row" id="spreadPicker"></div>
+        </div>
+        <div class="chart-box"><canvas id="chartSpread" aria-label="Spread versus reference"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-head">
+        <div>
+          <h2 class="section-title">Cost-aware signal panel</h2>
+          <small>Quiet by default — a signal prints only when the spread clears costs and the liquidity filter · evaluated on simulated history</small>
+        </div>
+        <span class="badge" id="signalCostBadge">—</span>
+      </div>
+      <div class="panel-grid">
+        <div class="controls">
+          <div class="ctrl">
+            <label for="costBps">Round-trip transaction cost — <span class="val" id="costVal">25</span> bps</label>
+            <input type="range" id="costBps" min="2" max="60" step="1" value="25" />
+            <div class="numrow" style="margin-top:6px">
+              <input class="input mono" id="costNum" type="number" min="2" max="60" step="1" value="25" aria-label="Transaction cost in basis points" />
+              <span class="badge">bps</span>
+            </div>
+            <div class="hint">Brokerage + exchange + GST + stamp + bid-ask slippage on both legs.</div>
+          </div>
+          <div class="ctrl">
+            <label for="minLiq">Minimum liquidity filter — <span class="val" id="liqVal">30</span> / 100</label>
+            <input type="range" id="minLiq" min="0" max="100" step="1" value="30" />
+            <div class="hint">Contracts scoring below this are reported but never signalled.</div>
+          </div>
+          <div class="ctrl">
+            <label for="refPick">Reference contract</label>
+            <select class="input" id="refPick"></select>
+            <div class="hint">The deepest book — everything else is priced against it.</div>
+          </div>
+          <div class="ctrl">
+            <label for="sigWindow">Evaluation window</label>
+            <select class="input" id="sigWindow">
+              <option value="5">Last 5 sessions</option>
+              <option value="10" selected>Last 10 sessions</option>
+              <option value="20">Last 20 sessions</option>
+              <option value="60">Last 60 sessions</option>
+            </select>
+          </div>
+          <button class="btn btn-outline btn-block" type="button" id="resetCtl">Reset to defaults</button>
+        </div>
+
+        <div>
+          <div class="state state-quiet" id="stateBox">
+            <div class="state-icon" id="stateIcon">●</div>
+            <div style="flex:1">
+              <h3 id="stateTitle">No meaningful signal — staying quiet</h3>
+              <p id="stateText">—</p>
+              <ul class="sig-list" id="sigList"></ul>
+            </div>
+          </div>
+          <div class="table-scroll" style="margin-top:14px">
+            <table>
+              <thead>
+                <tr>
+                  <th>Contract</th><th class="num">Per-gram ₹</th><th class="num">Spread vs ref</th><th class="num">Mean |spread|</th>
+                  <th class="num">Liquidity</th><th class="num">Days &gt; cost</th><th>Verdict</th>
+                </tr>
+              </thead>
+              <tbody id="signalTable"></tbody>
+            </table>
+          </div>
+          <div class="hint" style="margin-top:10px">
+            Spreads are measured on the last 10-session average unless the window is changed. “Days &gt; cost” counts sessions in the full sample where the absolute spread exceeded the current cost setting — a persistence test, not a profit claim.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-head">
+        <div>
+          <h2 class="section-title">Walk-forward backtest</h2>
+          <small>Three sequential out-of-sample folds · threshold calibrated in-sample, applied forward · on simulated history</small>
+        </div>
+        <span class="badge" id="btVerdictBadge">—</span>
+      </div>
+      <div class="bt-grid" id="btGrid"></div>
+      <div class="honest" id="btHonest">—</div>
+      <div class="tag-row" id="btTags"></div>
+      <div class="divider"></div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Fold</th><th>Test window</th><th class="num">Threshold</th><th class="num">Trades</th><th class="num">Gross P&amp;L</th><th class="num">Costs</th><th class="num">Net P&amp;L</th><th class="num">Gold move</th><th class="num">Strategy excess</th></tr>
+          </thead>
+          <tbody id="btTable"></tbody>
+        </table>
+      </div>
+      <div class="hint" style="margin-top:10px">
+        Strategy return is reported separately from gold's own price move: a long/short spread position is approximately market-neutral, so the gold buy-and-hold move is shown alongside rather than added in. Figures are in basis points of notional per fold; costs are charged on both legs at entry and exit.
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-head">
+        <div>
+          <h2 class="section-title">Data hygiene — checks actually applied</h2>
+          <small>Computed at runtime on the simulated feed, with defects injected on purpose to prove the checks catch them. The real snapshot was cleaned offline by the same rules: futures only, trimmed symbols, date check, expiry parsing.</small>
+        </div>
+        <span class="badge" id="hygieneBadge">—</span>
+      </div>
+      <ul class="hygiene" id="hygieneList"></ul>
+    </div>
+
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-head">
+        <div>
+          <h2 class="section-title">Why GoldSpread</h2>
+          <small>What the tools you already have do — and what they miss</small>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="cmp">
+          <thead>
+            <tr><th>Capability</th><th>Charting platforms</th><th>Broker terminals</th><th>Manual spreadsheets</th><th>GoldSpread</th></tr>
+          </thead>
+          <tbody id="whyTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="foot">
+      <p><strong>GoldSpread demo.</strong> Analytics and education only — not investment advice, not a registered research analyst service, and not an order-routing system. The snapshot section shows real MCX Bhavcopy closing prices for the date stated. The history charts, signal panel and backtest are generated in your browser from a seeded simulation and are labelled as sample data until more daily Bhavcopy files are loaded.</p>
+      <p style="margin-bottom:0">Data model: MCX public daily Bhavcopy (key-free) · Contracts: GOLDM (100 g, 995), GOLDTEN (10 g, 999), GOLDGUINEA (8 g, 999), GOLDPETAL (1 g, 999) · <a href="#/terms">Terms &amp; Conditions</a> · <button class="btn btn-ghost btn-sm" type="button" data-open-security="1">Security details</button></p>
+    </div>
+  </div>
+</section>
+</main>
+<!-- ============ SECURITY MODAL ============ -->
+<div class="modal-back hidden" id="securityModal" role="dialog" aria-modal="true" aria-labelledby="secTitle">
+  <div class="modal">
+    <div class="card-head" style="margin-bottom:6px">
+      <h3 id="secTitle" style="margin:0">Security — what this demo actually does</h3>
+      <button class="btn btn-ghost btn-sm" type="button" id="secClose">Close</button>
+    </div>
+    <p style="color:#b9b9b9">This page is honest about its own limits. Here is exactly what is and is not protected.</p>
+    <p><b class="gold">Transport.</b> When hosted on GitHub Pages (or any HTTPS host), all traffic between your browser and the server is encrypted in transit with TLS/HTTPS. The page also ships a Content-Security-Policy that restricts what can load and execute.</p>
+    <p><b class="gold">Passwords.</b> Your password is never stored, and never leaves the browser. It is put through PBKDF2 (<span class="mono">SHA-256</span>, 210,000 iterations, a fresh 16-byte random salt per account) and only the resulting derived hash is kept in <span class="mono">localStorage</span>. The plain-text password is discarded as soon as your session key is derived.</p>
+    <p><b class="gold">Stored data.</b> Session and profile data written to browser storage is encrypted client-side with AES-GCM 256 using a key derived from your password. A new random IV is generated for every write. Reading that data requires the same unlocked browser session.</p>
+    <p><b class="gold">Session lifetime.</b> The dashboard signs you out automatically after 15 minutes of inactivity. With “Remember me”, the session key is persisted in this browser so a reload keeps you signed in — that makes the device, not just the password, part of the trust boundary.</p>
+    <p><b class="gold">XSS handling.</b> Every value you type is inserted into the page as text, never as markup, so a script tag inside a name field is displayed as characters rather than executed.</p>
+    <div class="divider"></div>
+    <p><b style="color:#ffb3b3">What this is not.</b> There is no backend. This is a front-end demonstration with demo authentication stored locally — it is <b>not</b> end-to-end encrypted, <b>not</b> bank-grade, <b>not</b> audited, and <b>not</b> a substitute for a real identity or account system. Anyone with access to this unlocked device and its browser storage could read or modify what is stored there. Do not enter a password you use anywhere else.</p>
+    <div class="row" style="margin-top:14px"><button class="btn btn-gold" type="button" id="secOk">Understood</button></div>
+  </div>
+</div>
+
+<!-- ============ TOASTS ============ -->
+<div id="toasts" aria-live="polite" aria-atomic="true"></div>
+<script>
+/* ============================================================
+   GoldSpread · Part A — specs, utilities, seeded Bhavcopy data
+   ============================================================ */
+'use strict';
+
+var PURITY_REF = 999;            // every price is re-based to 999-purity per gram
+var LOTS = [
+  { code:'GOLDM',     label:'Gold 100g',      grams:100, quote:10, purity:995, liqBase:33 },
+  { code:'GOLDTEN',   label:'Gold Ten 10g',   grams:10,  quote:10, purity:999, liqBase:79 },
+  { code:'GOLDGUINEA',label:'Gold Guinea 8g', grams:8,   quote:8,  purity:999, liqBase:44 },
+  { code:'GOLDPETAL', label:'Gold Petal 1g',  grams:1,   quote:1,  purity:999, liqBase:93 }
+];
+var CODES = LOTS.map(function (c) { return c.code; });
+var KEYS = { USERS:'gs_users_v1', SESSION:'gs_session_v1', TERMS:'gs_terms_v1', PREFS:'gs_prefs_v1' };
+var SESSION_MINUTES = 15;
+var N_SESSIONS = 96;
+var REAL_ANCHOR = 14943.6;       // real GOLDTEN Oct-26 per-gram close, 01 Oct 2026; simulated history is scaled to end here
+
+/* ---------- seeded RNG so the sample is identical on every load ---------- */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+var rnd = mulberry32(20261002);
+function gauss(){
+  var u = 0, v = 0;
+  while (u === 0) u = rnd();
+  while (v === 0) v = rnd();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+/* ---------- date utilities ---------- */
+function pad2(n){ return String(n).padStart(2, '0'); }
+function iso(d){ return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+function fromIso(s){ var p = String(s).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+function addDays(d, n){ var x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+function daysBetween(a, b){ return Math.round((fromIso(b) - fromIso(a)) / 86400000); }
+function isWeekend(d){ var w = d.getDay(); return w === 0 || w === 6; }
+function fmtDMY(d){ return pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + '/' + d.getFullYear(); }
+function fmtMDY(d){ return pad2(d.getMonth() + 1) + '/' + pad2(d.getDate()) + '/' + d.getFullYear(); }
+function fmtShortDate(s){
+  var d = fromIso(s), m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return pad2(d.getDate()) + ' ' + m[d.getMonth()];
+}
+function fmtLongDate(s){
+  var d = fromIso(s), m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return pad2(d.getDate()) + ' ' + m[d.getMonth()] + ' ' + d.getFullYear();
+}
+/* compact Bhavcopy expiry form, e.g. 05OCT2026 -> 2026-10-05 */
+var MON = {JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12};
+var MON_ABBR = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+function expiryCompact(d){ return pad2(d.getDate()) + MON_ABBR[d.getMonth()] + d.getFullYear(); }
+function parseCompactExpiry(raw){
+  var s = String(raw || '').trim().toUpperCase();
+  var m = s.match(/^(\d{1,2})([A-Z]{3})(\d{4})$/);
+  if (m && MON[m[2]]) return iso(new Date(+m[3], MON[m[2]] - 1, +m[1]));
+  var m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m2) return s;
+  return null;
+}
+/* request dates are sent DD/MM/YYYY, the response echoes MM/DD/YYYY */
+function parseRequestDate(raw){
+  var m = String(raw || '').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return null;
+  return iso(new Date(+m[3], +m[2] - 1, +m[1]));
+}
+function parseResponseDate(raw){
+  var m = String(raw || '').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return null;
+  return iso(new Date(+m[3], +m[1] - 1, +m[2])); // response is month-first
+}
+
+/* ---------- normalization core ---------- */
+function purityFactor(purity){ return PURITY_REF / purity; }   // 995 -> 1.0040201, 999 -> 1
+function perGram(rawPrice, grams){ return rawPrice / grams; }
+function adjPerGram(rawPrice, grams, purity){ return (rawPrice / grams) * purityFactor(purity); }
+function toRawFromAdjusted(adj, grams, purity){ return (adj / purityFactor(purity)) * grams; }
+function bps(a, b){ return (a / b - 1) * 10000; }
+function mean(a){ return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : 0; }
+function sd(a){
+  if (a.length < 2) return 0;
+  var m = mean(a);
+  return Math.sqrt(a.reduce(function (s, v) { return s + (v - m) * (v - m); }, 0) / (a.length - 1));
+}
+function num(v, dp){ return Number(v).toLocaleString('en-IN', { minimumFractionDigits: dp, maximumFractionDigits: dp }); }
+function sign(v, dp){ return (v >= 0 ? '+' : '−') + num(Math.abs(v), dp == null ? 2 : dp); }
+
+/* ---------- build the sample sessions ---------- */
+function buildSessions(n){
+  var out = [], cur = new Date();
+  cur.setHours(0, 0, 0, 0);
+  while (isWeekend(cur)) cur = addDays(cur, -1);
+  while (out.length < n){
+    if (!isWeekend(cur)) out.unshift(iso(cur));
+    cur = addDays(cur, -1);
+  }
+  return out;
+}
+var SESSIONS = buildSessions(N_SESSIONS);
+var SAMPLE_FROM = SESSIONS[0];
+var SAMPLE_TO = SESSIONS[SESSIONS.length - 1];
+
+/* expiry ladder: gold futures expire on the 5th of the contract month */
+function buildExpiries(){
+  var base = fromIso(SAMPLE_FROM), out = [];
+  var y = base.getFullYear(), m = base.getMonth() - 1;
+  for (var i = 0; i < 9; i++){
+    var d = new Date(y, m + i, 5);
+    if (iso(d) >= SAMPLE_FROM) out.push(iso(d));
+  }
+  return out;
+}
+var EXPIRIES = buildExpiries();
+
+/* ---------- simulate the underlying 999-purity per-gram price ---------- */
+function buildBase(){
+  var level = 10240, out = [], i;
+  for (i = 0; i < SESSIONS.length; i++){
+    var drift = 0.00032;                       // gentle uptrend across the window
+    var wave = 0.0009 * Math.sin(i / 9.5);     // slow cycle so the chart reads as a market
+    level = level * (1 + drift + wave + gauss() * 0.0034);
+    out.push(level);
+  }
+  return out;
+}
+var BASE999 = buildBase();
+(function (){ var k = REAL_ANCHOR / BASE999[BASE999.length - 1]; for (var i = 0; i < BASE999.length; i++) BASE999[i] *= k; })();
+
+/* ---------- per contract: expiry-keyed dislocations + liquidity ---------- */
+function activeExpiry(dateIso){
+  for (var i = 0; i < EXPIRIES.length; i++){
+    if (daysBetween(dateIso, EXPIRIES[i]) >= 3) return EXPIRIES[i];
+  }
+  return EXPIRIES[EXPIRIES.length - 1];
+}
+function buildContract(spec){
+  var state = {}, rows = [], prev = null, rolls = 0, expiryCounts = {};
+  for (var i = 0; i < SESSIONS.length; i++){
+    var date = SESSIONS[i], exp = activeExpiry(date), dte = daysBetween(date, exp);
+    if (prev !== exp) rolls++;
+    if (state[exp] === undefined) state[exp] = gauss() * 12;
+    /* AR(1) dislocation around the fair per-gram value, tightening into expiry */
+    var carry = 0;
+    if (spec.code === 'GOLDPETAL') carry = 6.5 * Math.min(dte, 45) / 45;
+    else if (spec.code === 'GOLDGUINEA') carry = -3.2 * Math.min(dte, 45) / 45;
+    else if (spec.code === 'GOLDM') carry = 4.1 * Math.min(dte, 45) / 45;
+    state[exp] = state[exp] * 0.84 + gauss() * 5.2 + carry * 0.28;
+    var disl = Math.max(-80, Math.min(80, state[exp] + carry));
+    var adj = BASE999[i] * (1 + disl / 10000);
+    var raw = Math.round(toRawFromAdjusted(adj, spec.quote, spec.purity));
+    var liq = Math.max(3, Math.min(100, spec.liqBase + 9 * Math.sin(i / 6) + gauss() * 7));
+    var vol = Math.round((spec.liqBase + 20) * 140 * (1 + Math.abs(gauss()) * 0.35));
+    var oi = Math.round(vol * (0.8 + Math.abs(gauss()) * 0.5));
+    rows.push({
+      date: date, contract: spec.code, expiry: exp,
+      raw: raw, grams: spec.grams, purity: spec.purity,
+      perGram: perGram(raw, spec.quote),
+      adj: adjPerGram(raw, spec.quote, spec.purity),
+      disl: disl, dte: dte, liq: liq, volume: vol, oi: oi, rolled: prev !== exp
+    });
+    expiryCounts[exp] = (expiryCounts[exp] || 0) + 1;
+    prev = exp;
+  }
+  return { code: spec.code, rows: rows, rolls: rolls, expiryCounts: expiryCounts };
+}
+
+
+</script>
+<script>
+/* ============================================================
+   GoldSpread · Part B — raw Bhavcopy shape, hygiene pipeline, engine
+   ============================================================ */
+
+/* raw rows exactly as a Bhavcopy download would present them:
+   space-padded symbol, compact expiry, DD/MM request vs MM/DD response */
+function buildRawBhavcopy(){
+  var raw = [], i, j;
+  var built = LOTS.map(buildContract);
+  var quirks = 0, injected = [];
+  for (i = 0; i < SESSIONS.length; i++){
+    var d = fromIso(SESSIONS[i]);
+    for (j = 0; j < built.length; j++){
+      var r = built[j].rows[i];
+      raw.push({
+        SYMBOL: r.contract.padEnd(13, ' '),
+        EXPIRY_DT: expiryCompact(fromIso(r.expiry)),
+        REQ_DATE: fmtDMY(d),
+        RESP_DATE: fmtMDY(d),
+        CLOSE: String(r.raw)
+      });
+    }
+  }
+  /* deliberate feed defects the pipeline must catch and report */
+  var last = SESSIONS[SESSIONS.length - 1], mid = SESSIONS[40], early = SESSIONS[12];
+  raw.push({ SYMBOL:'GOLDTEN     ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(mid))), REQ_DATE: fmtDMY(fromIso(mid)), RESP_DATE: fmtMDY(addDays(fromIso(mid), 31)), CLOSE:'149400' });
+  raw.push({ SYMBOL:'GOLDPETAL    ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(last))), REQ_DATE: fmtDMY(fromIso(last)), RESP_DATE: fmtMDY(addDays(fromIso(last), 28)), CLOSE:'15000' });
+  injected.push('response-date-mismatch'); injected.push('response-date-mismatch');
+  raw.push({ SYMBOL:'GOLDGUINEA  ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(early))), REQ_DATE: fmtDMY(fromIso(early)), RESP_DATE: fmtMDY(fromIso(early)), CLOSE:'' });
+  injected.push('blank-close');
+  raw.push({ SYMBOL:'GOLDM       ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(mid))), REQ_DATE: fmtDMY(fromIso(mid)), RESP_DATE: fmtMDY(fromIso(mid)), CLOSE:'148400' });
+  injected.push('duplicate-key');
+  quirks = injected.length;
+  return { raw: raw, built: built, quirks: quirks, injected: injected };
+}
+
+var PART_A = { codes: CODES, expiries: EXPIRIES, tree: {}, clean: [], cleanByDate: {} };
+
+/* ---------- the hygiene pipeline: every check is applied, then reported ---------- */
+function runPipeline(){
+  var feed = buildRawBhavcopy();
+  var st = {
+    rawRows: feed.raw.length, symbolsTrimmed: 0, expiryParsed: 0, expiryExample: '',
+    dateOk: 0, dateMismatch: 0, closeRejected: 0, dupDropped: 0,
+    cleanRows: 0, rollEvents: 0, sessions: SESSIONS.length, from: SAMPLE_FROM, to: SAMPLE_TO,
+    expiriesTracked: 0, contracts: 0, mismatchExamples: []
+  };
+  var clean = [], seen = {};
+  for (var i = 0; i < feed.raw.length; i++){
+    var r = feed.raw[i];
+    var sym = r.SYMBOL;
+    if (sym !== sym.trim()) st.symbolsTrimmed++;
+    sym = sym.trim();
+    var exp = parseCompactExpiry(r.EXPIRY_DT);
+    if (exp && !st.expiryExample) st.expiryExample = r.EXPIRY_DT + ' -> ' + exp;
+    if (exp) st.expiryParsed++;
+    var req = parseRequestDate(r.REQ_DATE), res = parseResponseDate(r.RESP_DATE);
+    if (req && res && req === res){ st.dateOk++; }
+    else {
+      st.dateMismatch++;
+      if (st.mismatchExamples.length < 3) st.mismatchExamples.push('req ' + r.REQ_DATE + ' vs resp ' + r.RESP_DATE);
+      continue;
+    }
+    var close = Number(r.CLOSE);
+    if (!isFinite(close) || close <= 0){ st.closeRejected++; continue; }
+    var key = sym + '|' + req;
+    if (seen[key]){ st.dupDropped++; continue; }
+    seen[key] = 1;
+    var spec = null;
+    for (var k = 0; k < LOTS.length; k++) if (LOTS[k].code === sym) spec = LOTS[k];
+    if (!spec || !exp) continue;
+    clean.push({
+      date: req, contract: sym, expiry: exp,
+      grams: spec.grams, purity: spec.purity, rawPrice: close,
+      perGram: perGram(close, spec.quote), adj: adjPerGram(close, spec.quote, spec.purity),
+      factor: purityFactor(spec.purity)
+    });
+  }
+  clean.sort(function (a, b){ return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+  st.cleanRows = clean.length;
+  st.contracts = LOTS.length;
+
+  /* group strictly by (contract, expiry) — no stitched near-month series */
+  var byDate = {}, tree = {}, expSet = {};
+  for (i = 0; i < clean.length; i++){
+    var row = clean[i];
+    tree[row.contract] = tree[row.contract] || {};
+    tree[row.contract][row.expiry] = (tree[row.contract][row.expiry] || 0) + 1;
+    expSet[row.contract + '|' + row.expiry] = 1;
+    byDate[row.date] = byDate[row.date] || {};
+    byDate[row.date][row.contract] = row;
+  }
+  st.expiriesTracked = Object.keys(expSet).length;
+  var lastExp = {};
+  for (i = 0; i < clean.length; i++){
+    var rr = clean[i];
+    if (lastExp[rr.contract] && lastExp[rr.contract] !== rr.expiry) st.rollEvents++;
+    lastExp[rr.contract] = rr.expiry;
+  }
+  /* attach the simulated liquidity + dislocation series back on, per date */
+  var sim = {};
+  for (var b = 0; b < feed.built.length; b++){
+    for (var q = 0; q < feed.built[b].rows.length; q++){
+      var s = feed.built[b].rows[q];
+      sim[s.contract + '|' + s.date] = s;
+    }
+  }
+  for (i = 0; i < clean.length; i++){
+    var hit = sim[clean[i].contract + '|' + clean[i].date];
+    clean[i].liq = hit ? Math.round(hit.liq) : 45;
+    clean[i].volume = hit ? hit.volume : 0;
+    clean[i].oi = hit ? hit.oi : 0;
+    clean[i].dte = daysBetween(clean[i].date, clean[i].expiry);
+  }
+  PART_A.clean = clean; PART_A.cleanByDate = byDate; PART_A.tree = tree;
+  PART_A.stats = st; PART_A.injected = feed.injected;
+  return { clean: clean, byDate: byDate, tree: tree, stats: st };
+}
+
+/* ---------- series helpers ---------- */
+function dateList(){ return Object.keys(PART_A.cleanByDate).sort(); }
+function seriesFor(code){
+  return dateList().map(function (d){ return PART_A.cleanByDate[d][code] || null; });
+}
+function adjSeries(code){
+  return seriesFor(code).map(function (r){ return r ? r.adj : null; });
+}
+function lastRow(code){
+  var s = seriesFor(code);
+  for (var i = s.length - 1; i >= 0; i--) if (s[i]) return s[i];
+  return null;
+}
+function prevRow(code){
+  var s = seriesFor(code), found = 0;
+  for (var i = s.length - 1; i >= 0; i--){
+    if (s[i]){ if (found === 1) return s[i]; found++; }
+  }
+  return null;
+}
+function refCode(state){ return (state && state.ref) || 'GOLDPETAL'; }
+function spreadSeries(code, ref, windowLen){
+  var dates = dateList(), a = PART_A.cleanByDate, out = [];
+  for (var i = 0; i < dates.length; i++){
+    var x = a[dates[i]][code], y = a[dates[i]][ref];
+    out.push(x && y ? bps(x.adj, y.adj) : null);
+  }
+  if (windowLen && windowLen < out.length){
+    var keepFrom = out.length - windowLen;
+    for (var j = 0; j < keepFrom; j++) out[j] = null;
+  }
+  return out;
+}
+function tailVals(arr, n){
+  var v = arr.filter(function (x){ return typeof x === 'number' && isFinite(x); });
+  return v.slice(Math.max(0, v.length - (n || v.length)));
+}
+function windowBps(code, ref, win){
+  return tailVals(spreadSeries(code, ref, win), win);
+}
+
+/* ---------- cost-aware signal logic ---------- */
+function computeSignals(state){
+  var ref = refCode(state), cost = Number(state.cost), liqMin = Number(state.liq), win = Number(state.window);
+  var dates = dateList();
+  var out = { ref: ref, cost: cost, liq: liqMin, window: win, per: [], printing: [], evaluatedFrom: dates[Math.max(0, dates.length - win)], evaluatedTo: dates[dates.length - 1] };
+  PART_A.codes.forEach(function (code){
+    var full = tailVals(spreadSeries(code, ref), 1e6);
+    var w = windowBps(code, ref, win);
+    var lr = lastRow(code), pr = prevRow(code);
+    var last = full.length ? full[full.length - 1] : 0;
+    var meanAbs = mean(w.map(Math.abs));
+    var persist = full.filter(function (v){ return Math.abs(v) > cost; }).length;
+    var row = {
+      code: code, adj: lr ? lr.adj : 0, perGram: lr ? lr.perGram : 0,
+      last: code === ref ? 0 : last, meanAbs: code === ref ? 0 : meanAbs,
+      dayChange: (lr && pr) ? bps(lr.adj, pr.adj) : 0,
+      liq: lr ? lr.liq : 0, persist: persist, sessions: full.length,
+      dte: lr ? lr.dte : 0, expiry: lr ? lr.expiry : '', raw: lr ? lr.rawPrice : 0,
+      volume: lr ? lr.volume : 0, oi: lr ? lr.oi : 0
+    };
+    var costOk = Math.abs(row.last) > cost;
+    var liqOk = row.liq >= liqMin;
+    var persistOk = persist >= Math.max(3, Math.round(full.length * 0.15));
+    row.costOk = costOk; row.liqOk = liqOk; row.persistOk = persistOk;
+    row.prints = code !== ref && costOk && liqOk && persistOk;
+    row.verdict = code === ref ? 'Reference' : (row.prints ? 'SIGNAL' : (costOk && !liqOk ? 'Liquidity fail' : (costOk && !persistOk ? 'Not persistent' : 'Within costs')));
+    if (row.prints) out.printing.push(row);
+    out.per.push(row);
+  });
+  out.per.sort(function (a, b){ return Math.abs(b.last) - Math.abs(a.last); });
+  return out;
+}
+
+/* ---------- walk-forward backtest ---------- */
+function runBacktest(state){
+  var ref = refCode(state), cost = Number(state.cost);
+  var dates = dateList();
+  var nFolds = 3, testLen = 20, isLen = 20;
+  var start = Math.max(isLen, dates.length - nFolds * testLen);
+  var folds = [], pairs = [];
+  PART_A.codes.forEach(function (c){ if (c !== ref) pairs.push(c); });
+
+  for (var f = 0; f < nFolds; f++){
+    var tStart = start + f * testLen, tEnd = tStart + testLen;
+    var isFrom = Math.max(0, tStart - isLen);
+    /* calibrate in-sample: mean + 0.5 sd of the absolute spread */
+    var pool = [];
+    pairs.forEach(function (c){
+      var sp = spreadSeries(c, ref);
+      for (var i = isFrom; i < tStart; i++) if (typeof sp[i] === 'number') pool.push(Math.abs(sp[i]));
+    });
+    var thr = pool.length ? mean(pool) + 0.5 * sd(pool) : cost;
+    var trigger = Math.max(thr, cost);
+    var gross = 0, costs = 0, trades = 0, wins = 0;
+    var refStart = null, refEnd = null;
+    var busy = {};
+    for (var d = tStart; d < tEnd && d < dates.length; d++){
+      var refRow = PART_A.cleanByDate[dates[d]][ref];
+      if (refRow){ if (refStart === null) refStart = refRow.adj; refEnd = refRow.adj; }
+      for (var p = 0; p < pairs.length; p++){
+        var code = pairs[p];
+        if (busy[code] >= d) continue;                 /* one position per pair at a time */
+        var sp = spreadSeries(code, ref);
+        var e = sp[d];
+        if (typeof e !== 'number' || Math.abs(e) <= trigger) continue;
+        var exitAbs = Math.abs(e), hold = 0;
+        for (var j = d + 1; j < Math.min(d + 6, dates.length); j++){
+          var v = sp[j];
+          if (typeof v !== 'number') continue;
+          hold++; exitAbs = Math.abs(v);
+          if (Math.abs(v) <= cost / 2) break;
+        }
+        if (hold === 0) continue;
+        busy[code] = d + hold;
+        gross += Math.max(0, Math.abs(e) - exitAbs);
+        costs += cost; trades++;
+        if (Math.abs(e) - exitAbs - cost > 0) wins++;
+      }
+    }
+    var net = gross - costs;
+    var gold = (refStart && refEnd) ? bps(refEnd, refStart) : 0;
+    folds.push({
+      id: f + 1, from: dates[tStart], to: dates[Math.min(tEnd - 1, dates.length - 1)],
+      threshold: trigger, isFrom: dates[isFrom], trades: trades, gross: gross, costs: costs,
+      net: net, gold: gold, excess: net, winRate: trades ? (wins / trades) * 100 : 0
+    });
+  }
+  var tot = folds.reduce(function (a, f){ return { gross: a.gross + f.gross, costs: a.costs + f.costs, net: a.net + f.net, trades: a.trades + f.trades }; }, { gross:0, costs:0, net:0, trades:0 });
+  var pos = folds.filter(function (f){ return f.net > 0; }).length;
+  var verdict;
+  if (tot.net <= 0) verdict = { tag:'No persistent edge survives costs', kind:'none', headline:'No persistent edge survives costs' };
+  else if (pos < folds.length) verdict = { tag:'Mixed — edge not persistent', kind:'mixed', headline:'A positive average hides an inconsistent edge' };
+  else verdict = { tag:'Edge survived costs in all folds', kind:'edge', headline:'Spread convergence cleared costs in every fold' };
+  var avgTrades = tot.trades / folds.length;
+  var reason = tot.trades === 0
+    ? 'Across the out-of-sample windows no spread ever cleared max(calibrated threshold, ' + cost + ' bps), so zero trades were taken and P&L is exactly zero. Reporting nothing is the correct output.'
+    : 'Gross capture averaged ' + num(tot.gross / folds.length, 1) + ' bps per fold against ' + num(tot.costs / folds.length, 1) + ' bps of costs on ' + num(avgTrades, 1) + ' trades per fold' + (tot.net <= 0 ? ', so the net is negative or flat.' : '.');
+  return { folds: folds, total: tot, positiveFolds: pos, nFolds: nFolds, verdict: verdict, reason: reason, cost: cost, ref: ref, pairs: pairs, thresholdAvg: mean(folds.map(function (f){ return f.threshold; })) };
+}
+
+/* ---------- data-hygiene panel content, built from real counts ---------- */
+function hygieneRows(){
+  var s = PART_A.stats;
+  return [
+    { code:'expiry-keyed series', text:'Every contract is keyed by its actual <b>expiry_date</b>, not stitched into a synthetic near-month line.', detail:s.contracts + ' contracts, ' + s.expiriesTracked + ' distinct (contract, expiry) series, ' + s.rollEvents + ' genuine roll events across ' + s.sessions + ' sessions.'},
+    { code:'returned dates validated', text:'Each returned row is accepted only when its parsed date equals the date that was requested.', detail:s.dateOk + ' of ' + s.rawRows + ' rows matched their request · ' + s.dateMismatch + ' mismatch' + (s.dateMismatch === 1 ? '' : 'es') + ' rejected' + (s.mismatchExamples.length ? ' (' + s.mismatchExamples.join(' · ') + ')' : '') + '.'},
+    { code:'compact expiry parsing', text:'Compact Bhavcopy expiry strings are parsed into ISO dates instead of being trusted as sortable text.', detail:s.expiryParsed + ' rows parsed · example ' + (s.expiryExample || 'n/a') + '.'},
+    { code:'space-padded symbols', text:'Space-padded symbols are trimmed before grouping, so padded and unpadded rows never split a series.', detail:s.symbolsTrimmed + ' rows carried trailing padding and were normalised.'},
+    { code:'date-format reconciliation', text:'Requests are sent as <b>DD/MM/YYYY</b> and echoed as <b>MM/DD/YYYY</b>; both are parsed independently and reconciled before use.', detail:s.dateOk + ' rows reconciled to the same instant · ' + s.dateMismatch + ' ambiguous or shifted responses dropped.'},
+    { code:'duplicate + blank guards', text:'Blank, zero or unparseable closes are dropped, and duplicate (symbol, date) pairs are discarded.', detail:s.closeRejected + ' blank close row' + (s.closeRejected === 1 ? '' : 's') + ' dropped · ' + s.dupDropped + ' duplicate key dropped.'},
+    { code:'sample window', text:'Requested window is walked session by session and only business days are kept.', detail:fmtLongDate(s.from) + ' to ' + fmtLongDate(s.to) + ' · ' + s.sessions + ' sessions · ' + s.cleanRows + ' clean rows retained from ' + s.rawRows + ' raw rows.'}
+  ];
+}
+
+/* ---------- static content: terms + comparison ---------- */
+var TERMS = [
+  { id:'acceptance', h:'Acceptance of Terms', p:['By accessing GoldSpread you agree to these Terms & Conditions in full. If you do not agree with any part of them, you must stop using the service immediately.', 'These terms apply to every visitor, registered user and anyone who otherwise accesses the analytics presented here. Continued use after any revision constitutes acceptance of the revised terms.'], ul:[] },
+  { id:'nature', h:'Nature of Service', p:['GoldSpread is an analytics and educational tool for commodity derivatives. It computes normalization, relative-value and spread statistics for MCX gold futures and presents them for study.', 'GoldSpread is not an investment adviser, portfolio manager, research analyst, broker or exchange member. Nothing on this service is a recommendation, solicitation or offer to buy, sell or hold any contract.', 'Any signal, flag or score displayed is the output of a stated, deterministic rule set applied to data you can inspect. It is information, not advice, and it is not personalized to your circumstances.'], ul:[] },
+  { id:'risk', h:'Trading Risk Disclosure', p:['Trading in commodity derivatives is not suitable for everyone and involves a substantial risk of loss. You may lose more than your initial margin. Past performance of any market, contract or strategy is not indicative of future results.', 'GoldSpread is not registered investment advice. No output from this service has been reviewed or approved by any regulator, exchange or licensed adviser.', 'Spreads that look attractive on historical data can persist, widen, or converge far more slowly than expected. Contract liquidity, position limits, expiry effects, margin calls and execution slippage can each turn an apparent opportunity into a loss.'], ul:[] },
+  { id:'data', h:'Data Sources', p:['The intended production data source is the public, key-free daily MCX Bhavcopy publication for gold futures contracts. The snapshot section shows real MCX Bhavcopy closing prices for the date stated on it. The history, signal and backtest panels are generated in the browser from a seeded simulation until more daily files are loaded.', 'Exchange data can be delayed, revised, incomplete or temporarily unavailable. GoldSpread makes no guarantee of accuracy, completeness, timeliness or fitness for any purpose, and no responsibility is accepted for errors arising from third-party data.'], ul:[] },
+  { id:'backtest', h:'Backtest Disclaimer', p:['Backtested and historical results do not guarantee, predict or imply future performance. Walk-forward evaluation reduces but does not eliminate the risk of overfitting, look-ahead bias or survivorship bias.', 'Backtests in GoldSpread are charged explicit transaction costs on both legs. Even so, modelled costs, fills and liquidity are approximations. A backtest is a study of a rule set, not a promise about a trading account.'], ul:[] },
+  { id:'accounts', h:'User Accounts and Security', p:['This demonstration implements front-end-only authentication. A password is put through PBKDF2 with a random per-account salt, and only the derived hash is retained in this browser. Data written to browser storage is encrypted client-side with AES-GCM.', 'You are responsible for the device you use. Anyone with access to this unlocked browser profile may be able to read locally stored data. Do not reuse a password that protects anything else.', 'Do not claim true end-to-end encryption, bank-grade security or regulatory-grade protection on the basis of this demo — it provides none of them, and it has no backend.'], ul:[] },
+  { id:'privacy', h:'Privacy and Data Handling', p:['GoldSpread has no server-side database in this demo. The name, email, password hash and preferences you enter are stored locally in your own browser and are not transmitted anywhere by this page.', 'Clearing your browser storage removes that data permanently. No analytics identifiers, advertising pixels or third-party trackers are used beyond the font and chart libraries loaded from public CDNs.'], ul:[] },
+  { id:'liability', h:'Limitation of Liability', p:['To the maximum extent permitted by law, GoldSpread and its authors shall not be liable for any direct, indirect, incidental, consequential, special or exemplary damages — including trading losses, lost profits, lost data or business interruption — arising from your use of, or inability to use, this service.', 'Nothing in these terms limits liability that cannot lawfully be limited.'], ul:[] },
+  { id:'changes', h:'Changes to Terms', p:['These terms may be revised at any time. The date at the top of this page reflects the current version. Material changes take effect when posted, and your continued use of GoldSpread after that constitutes acceptance.'], ul:[] },
+  { id:'contact', h:'Contact', p:['Questions about these terms, the methodology or the data pipeline can be raised with the GoldSpread maintainer through the repository where this project is published.', 'Include the version date shown above and, where relevant, the contract codes and date range you are asking about so the question can be answered against the same figures.'], ul:[] }
+];
+
+var WHY = [
+  ['Contract coverage', 'One symbol charted at a time', 'Focused on the order ticket', 'Whatever you happen to have typed in', 'All four gold sizes on one normalized basis'],
+  ['Unit & purity normalization', 'No — each contract stays in its own lot price', 'No', 'Manual division, easily wrong by 100x', '\u20b9 per gram of 999 purity, applied by code'],
+  ['Relative-value analytics', 'None', 'None', 'Ad-hoc one-off formulas', 'Spreads, dispersion and cost thresholds'],
+  ['Signal discipline', 'Discretionary alerts, alert fatigue', 'Execution prompts only', 'Personal judgement', 'Quiet by default — prints only past costs'],
+  ['Backtesting', 'No', 'No', 'Not repeatable, not versioned', 'Walk-forward, out-of-sample folds'],
+  ['Cost awareness', 'No', 'Execution cost only', 'Sometimes, if remembered', 'Cost and liquidity are required inputs'],
+  ['Expiry awareness', 'Continuous front-month chart', 'Contract-level only', 'Manual roll notes', 'Keyed by actual expiry_date, rolls tracked'],
+  ['Auditability', 'None', 'Order blotter', 'Fragile, undocumented cells', 'Every rule is a line of code you can read']
+];
+/* ============================================================
+   GoldSpread · Part C — crypto auth, storage, routing, rendering
+   ============================================================ */
+var GS = {};
+
+/* ---------- tiny DOM + format helpers ---------- */
+function $(s, r){ return (r || document).querySelector(s); }
+function $$(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+function setText(el, v){ if (el) el.textContent = v == null ? '' : String(v); }
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function rupee(v, dp){ return '\u20b9' + num(v, dp == null ? 2 : dp); }
+function toast(msg, kind){
+  var host = $('#toasts');
+  var el = document.createElement('div');
+  el.className = 'toast ' + (kind || '');
+  el.textContent = msg;                       /* textContent: user text is never parsed as HTML */
+  host.appendChild(el);
+  setTimeout(function (){ el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, 4200);
+  setTimeout(function (){ if (el.parentNode) el.parentNode.removeChild(el); }, 4700);
+}
+
+/* ---------- Web Crypto: PBKDF2 hashing + AES-GCM ---------- */
+var B64 = {
+  enc: function (u8){ var s = ''; for (var i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]); return btoa(s); },
+  dec: function (b){ var bin = atob(b), u8 = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); return u8; }
+};
+function hasWebCrypto(){ return !!(window.crypto && window.crypto.subtle && window.crypto.getRandomValues); }
+function randomB64(n){ var u8 = new Uint8Array(n); crypto.getRandomValues(u8); return B64.enc(u8); }
+async function deriveBits(password, saltB64, iterations, tag){
+  var salt = B64.dec(saltB64);
+  if (tag) { var mix = new Uint8Array(salt.length + tag.length); mix.set(salt, 0); mix.set(tag, salt.length); salt = mix; }
+  var base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+  var bits = await crypto.subtle.deriveBits({ name:'PBKDF2', salt:salt, iterations:iterations, hash:'SHA-256' }, base, 256);
+  return new Uint8Array(bits);
+}
+function markDigest(tag){ var u8 = new Uint8Array(tag.length); for (var i = 0; i < tag.length; i++) u8[i] = tag.charCodeAt(i) & 255; return u8; }
+async function aesKeyFrom(password, saltB64){
+  var bits = await deriveBits(password, saltB64, 210000, 'aes-gcm-key');
+  return crypto.subtle.importKey('raw', bits, { name:'AES-GCM' }, true, ['encrypt', 'decrypt']);
+}
+async function aesEncrypt(key, obj){
+  var iv = crypto.getRandomValues(new Uint8Array(12));            /* fresh IV on every write */
+  var data = new TextEncoder().encode(JSON.stringify(obj));
+  var ct = await crypto.subtle.encrypt({ name:'AES-GCM', iv:iv, tagLength:128 }, key, data);
+  return { iv: B64.enc(iv), ct: B64.enc(new Uint8Array(ct)) };
+}
+async function aesDecrypt(key, box){
+  var pt = await crypto.subtle.decrypt({ name:'AES-GCM', iv:B64.dec(box.iv), tagLength:128 }, key, B64.dec(box.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+/* ---------- storage ---------- */
+var store = {
+  get: function (k){ try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e){ return null; } },
+  set: function (k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e){ return false; } },
+  del: function (k){ try { localStorage.removeItem(k); } catch (e){} },
+  sget: function (k){ try { var v = sessionStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e){ return null; } },
+  sset: function (k, v){ try { sessionStorage.setItem(k, JSON.stringify(v)); } catch (e){} },
+  sdel: function (k){ try { sessionStorage.removeItem(k); } catch (e){} }
+};
+
+/* ---------- accounts: PBKDF2 hash only, never the password ---------- */
+GS.auth = {
+  ITER: 210000,
+  users: function (){ return store.get(KEYS.USERS) || {}; },
+  find: function (email){ var u = GS.auth.users(); return u[String(email).trim().toLowerCase()] || null; },
+  register: async function (name, email, password){
+    var key = String(email).trim().toLowerCase();
+    var users = GS.auth.users();
+    if (users[key]) throw new Error('An account with this email already exists on this device.');
+    var salt = randomB64(16);
+    var hash = B64.enc(await deriveBits(password, salt, GS.auth.ITER, 'password-hash'));
+    users[key] = { name:String(name).trim(), email:key, salt:salt, hash:hash, iters:GS.auth.ITER, created:Date.now() };
+    store.set(KEYS.USERS, users);                    /* only salt + derived hash are kept */
+    return users[key];
+  },
+  verify: async function (email, password){
+    var rec = GS.auth.find(email);
+    if (!rec) return null;
+    var hash = B64.enc(await deriveBits(password, rec.salt, rec.iters || GS.auth.ITER, 'password-hash'));
+    return hash === rec.hash ? rec : null;           /* derived-hash comparison only */
+  }
+};
+
+/* ---------- session: encrypted with AES-GCM, key derived from the password ---------- */
+GS.session = {
+  current: null, key: null, expiresAt: 0, timer: null,
+  start: async function (rec, password, remember){
+    var key = await aesKeyFrom(password, rec.salt);
+    var payload = { email:rec.email, name:rec.name, issued:Date.now(), expires:Date.now() + (remember ? 30 * 86400000 : SESSION_MINUTES * 60000) };
+    var box = await aesEncrypt(key, payload);
+    store.set(KEYS.SESSION, { v:1, iv:box.iv, ct:box.ct, email:rec.email });
+    var raw = await crypto.subtle.exportKey('raw', key);
+    var wrapped = B64.enc(new Uint8Array(raw));
+    if (remember) { store.set('gs_kek_v1', wrapped); store.sdel('gs_kek_v1'); }
+    else { store.sset('gs_kek_v1', wrapped); store.del('gs_kek_v1'); }
+    GS.session.key = key; GS.session.current = payload;
+    GS.session.markActivity();
+    return payload;
+  },
+  async restore(){
+    var box = store.get(KEYS.SESSION);
+    var wrapped = store.get('gs_kek_v1') || store.sget('gs_kek_v1');
+    if (!box || !wrapped) return null;
+    try {
+      var key = await crypto.subtle.importKey('raw', B64.dec(wrapped), { name:'AES-GCM' }, true, ['encrypt', 'decrypt']);
+      var payload = await aesDecrypt(key, box);
+      if (!payload || payload.expires < Date.now()) { GS.session.clear(); return null; }
+      GS.session.key = key; GS.session.current = payload;
+      GS.session.markActivity();          /* the 15-minute clock restarts from this reload */
+      return payload;
+    } catch (e){ GS.session.clear(); return null; }
+  },
+  clear: function (){
+    store.del(KEYS.SESSION); store.del('gs_kek_v1'); store.sdel('gs_kek_v1');
+    GS.session.current = null; GS.session.key = null;
+    if (GS.session.timer) { clearInterval(GS.session.timer); GS.session.timer = null; }
+  },
+  markActivity: function (){
+    if (!GS.session.current) return;
+    GS.session.expiresAt = Date.now() + SESSION_MINUTES * 60000;
+    if (!GS.session.timer) GS.session.timer = setInterval(GS.session.tick, 1000);
+  },
+  tick: function (){
+    if (!GS.session.current) return;
+    var left = Math.max(0, Math.round((GS.session.expiresAt - Date.now()) / 1000));
+    var el = $('#sessionClock');
+    if (el) setText(el, '\u23f1 ' + pad2(Math.floor(left / 60)) + ':' + pad2(left % 60));
+    if (left <= 0){
+      GS.session.clear();
+      toast('Signed out after ' + SESSION_MINUTES + ' minutes of inactivity.', 'err');
+      location.hash = '#/login';
+    }
+  },
+  valid: function (){
+    var p = GS.session.current;
+    return !!(p && p.expires > Date.now() && GS.session.expiresAt > Date.now());
+  }
+};
+
+/* ---------- app state ---------- */
+GS.state = { cost:25, liq:30, ref:'GOLDPETAL', window:10, charts:{}, pipeline:null };
+GS.act = function (){ /* activity hook */ };
+
+/* ---------- terms render ---------- */
+function renderTerms(){
+  var toc = $('#tocList'), host = $('#termsSections');
+  if (!host) return;
+  var t = '', b = '';
+  TERMS.forEach(function (s, i){
+    t += '<li><a href="#terms-' + s.id + '" data-sec="' + s.id + '">' + escapeHtml(s.h) + '</a></li>';
+    b += '<h2 id="terms-' + s.id + '"><span class="num">' + pad2(i + 1) + '</span>' + escapeHtml(s.h) + '</h2>';
+    s.p.forEach(function (p){ b += '<p>' + escapeHtml(p) + '</p>'; });
+  });
+  toc.innerHTML = t; host.innerHTML = b;
+  $$('#tocList a').forEach(function (a){
+    a.addEventListener('click', function (ev){
+      ev.preventDefault();
+      var el = document.getElementById('terms-' + a.getAttribute('data-sec'));
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+}
+
+/* ---------- ticker, KPI, contract cards ---------- */
+function tickerItems(){
+  var ref = GS.state.ref, sig = computeSignals(GS.state);
+  var out = '';
+  var list = LOTS.map(function (spec){
+    var row = lastRow(spec.code), prev = prevRow(spec.code);
+    var chg = (row && prev) ? bps(row.adj, prev.adj) : 0;
+    var cls = chg > 0 ? 'up' : chg < 0 ? 'down' : 'flat';
+    return '<span class="tk"><b>' + spec.code + '</b>' + rupee(row ? row.adj : 0, 2) + '/g <span class="' + cls + '">' + sign(chg, 1) + ' bps</span><u>' + expiryCompact(fromIso(row ? row.expiry : SAMPLE_TO)) + '</u></span>';
+  }).join('');
+  for (var i = 0; i < 2; i++) out += list;   /* duplicated for a seamless marquee */
+  return out;
+}
+function renderTicker(){ var el = $('#tickerTrack'); if (el) el.innerHTML = tickerItems(); }
+
+function renderKpi(){
+  var st = PART_A.stats, sig = computeSignals(GS.state);
+  var spreads = sig.per.filter(function (r){ return r.code !== GS.state.ref; }).map(function (r){ return Math.abs(r.last); });
+  var cards = [
+    { l:'Sessions loaded', v:num(st.sessions, 0), s:fmtLongDate(st.from) + ' → ' + fmtLongDate(st.to) },
+    { l:'Clean rows', v:num(st.cleanRows, 0), s:num(st.rawRows, 0) + ' raw · ' + num(st.rawRows - st.cleanRows, 0) + ' rejected by hygiene' },
+    { l:'Reference contract', v:GS.state.ref, s:'Deepest book · spreads are bps vs this leg' },
+    { l:'Mean |spread|', v:num(mean(spreads), 1) + ' bps', s:'Across ' + (sig.per.length - 1) + ' non-reference contracts, last ' + GS.state.window + ' sessions' },
+    { l:'Cost hurdle', v:GS.state.cost + ' bps', s:GS.state.cost + ' bps round trip both legs' },
+    { l:'Contracts printing', v:sig.printing.length + ' / 4', s:sig.printing.length ? 'Spread clears cost + liquidity' : 'Quiet — nothing clears costs' }
+  ];
+  $('#kpiRow').innerHTML = cards.map(function (c){
+    return '<div class="kpi"><div class="k-label">' + escapeHtml(c.l) + '</div><div class="k-val">' + escapeHtml(c.v) + '</div><div class="k-sub">' + escapeHtml(c.s) + '</div></div>';
+  }).join('');
+  setText($('#dataWindowBadge'), st.sessions + ' sessions · ' + fmtShortDate(st.from) + ' → ' + fmtShortDate(st.to));
+}
+
+function renderContracts(){
+  var sig = computeSignals(GS.state), map = {};
+  sig.per.forEach(function (r){ map[r.code] = r; });
+  $('#contractGrid').innerHTML = LOTS.map(function (spec){
+    var r = map[spec.code], row = lastRow(spec.code), prev = prevRow(spec.code);
+    var chg = (row && prev) ? bps(row.adj, prev.adj) : 0;
+    var cls = chg > 0 ? 'up' : chg < 0 ? 'down' : 'flat';
+    var badge = spec.code === GS.state.ref ? '<span class="badge badge-gold">REFERENCE</span>'
+      : (r && r.prints ? '<span class="badge badge-gold">SIGNAL</span>' : '<span class="badge">' + escapeHtml(r ? r.verdict : '—') + '</span>');
+    return '<div class="ccard">'
+      + '<div class="ccard-top"><div><div class="ccard-code">' + spec.code + '</div><div class="ccard-name">' + escapeHtml(spec.label) + '</div></div>' + badge + '</div>'
+      + '<div class="ccard-price">' + rupee(row ? row.adj : 0, 2) + '<small class="' + cls + '">' + sign(chg, 1) + ' bps d/d</small></div>'
+      + '<div style="font-size:12.5px;color:#8f8f8f">' + rupee(row ? row.perGram : 0, 2) + ' per gram raw (no purity adjustment)</div>'
+      + '<div class="ccard-meta">'
+      + '<div><span>Lot size</span><b>' + spec.grams + ' g</b></div>'
+      + '<div><span>Purity</span><b>' + spec.purity + '</b></div>'
+      + '<div><span>Purity factor</span><b>' + num(purityFactor(spec.purity), 5) + '</b></div>'
+      + '<div><span>Shown price</span><b>' + rupee(row ? row.rawPrice : 0, 0) + '</b></div>'
+      + '<div><span>Expiry</span><b>' + expiryCompact(fromIso(row ? row.expiry : SAMPLE_TO)) + '</b></div>'
+      + '<div><span>Days to expiry</span><b>' + (row ? row.dte : 0) + '</b></div>'
+      + '<div><span>Liquidity</span><b>' + (row ? row.liq : 0) + ' / 100</b></div>'
+      + '<div><span>Spread vs ref</span><b>' + (spec.code === GS.state.ref ? '0.0' : sign(r ? r.last : 0, 1)) + ' bps</b></div>'
+      + '</div></div>';
+  }).join('');
+}
+
+/* ---------- charts (destroy before re-create; hidden canvases render at zero size) ---------- */
+function chartFont(){ return { family:"'JetBrains Mono', monospace", size:11 }; }
+/* built as a function, never JSON-cloned: cloning would strip the callback functions */
+function baseOptions(){
+  return {
+    responsive:true, maintainAspectRatio:false, animation:{ duration:520 },
+    interaction:{ mode:'index', intersect:false },
+    plugins:{
+      legend:{ display:false },
+      tooltip:{ backgroundColor:'#141414', borderColor:'#2a2a2a', borderWidth:1, titleColor:'#FFC107', bodyColor:'#e6e6e6', padding:10,
+        titleFont:chartFont(), bodyFont:chartFont(), callbacks:{ label:function (){ return ''; } } }
+    },
+    scales:{
+      x:{ grid:{ color:'rgba(255,255,255,.045)' }, ticks:{ color:'#6f6f6f', font:chartFont(), maxTicksLimit:8, maxRotation:0, autoSkip:true } },
+      y:{ grid:{ color:'rgba(255,255,255,.06)' }, ticks:{ color:'#8f8f8f', font:chartFont() } }
+    }
+  };
+}
+function destroyCharts(){
+  Object.keys(GS.state.charts).forEach(function (k){
+    try { GS.state.charts[k].destroy(); } catch (e){}
+    GS.state.charts[k] = null;
+  });
+}
+var PALETTE = { GOLDM:'#FFC107', GOLDTEN:'#FFE082', GOLDGUINEA:'#C99A2E', GOLDPETAL:'#8C7A2B' };
+var DASHES = { GOLDM:[], GOLDTEN:[7, 3], GOLDGUINEA:[3, 3], GOLDPETAL:[9, 3, 2, 3] };
+function buildCharts(){
+  var dates = dateList(), labels = dates.map(fmtShortDate);
+  /* Chart 1 — normalized per-gram prices of all four contracts */
+  var o1 = baseOptions();
+  o1.plugins.tooltip.callbacks.label = function (c){ return ' ' + c.dataset.label + ': ' + rupee(c.parsed.y, 2) + ' / g (999 basis)'; };
+  o1.scales.y.ticks.callback = function (v){ return '\u20b9' + num(v, 0); };
+  o1.scales.y.title = { display:true, text:'\u20b9 per gram, 999 purity basis', color:'#6f6f6f', font:chartFont() };
+  GS.state.charts.prices = new Chart($('#chartPrices'), {
+    type:'line',
+    data:{ labels:labels, datasets:LOTS.map(function (spec){
+      return { label:spec.code, data:adjSeries(spec.code), borderColor:PALETTE[spec.code], backgroundColor:PALETTE[spec.code],
+        borderWidth:spec.code === 'GOLDM' ? 2.2 : 1.7, borderDash:DASHES[spec.code], pointRadius:0, pointHitRadius:8, tension:.25, spanGaps:false };
+    }) },
+    options:o1
+  });
+
+  /* Chart 2 — spreads vs reference, with the shaded cost band */
+  var ref = GS.state.ref, cost = GS.state.cost;
+  var dsets = [
+    { label:'Cost threshold \u2212', data:labels.map(function (){ return -cost; }), borderColor:'rgba(255,193,7,0)', backgroundColor:'rgba(255,193,7,.06)', pointRadius:0, fill:false, borderWidth:0, order:9 },
+    { label:'Cost threshold +', data:labels.map(function (){ return cost; }), borderColor:'rgba(255,193,7,.5)', backgroundColor:'rgba(255,193,7,.06)', pointRadius:0, borderDash:[5, 4], fill:'-1', borderWidth:1, order:8 }
+  ];
+  LOTS.forEach(function (spec){
+    if (spec.code === ref) return;
+    dsets.push({ label:spec.code, data:spreadSeries(spec.code, ref), borderColor:PALETTE[spec.code], backgroundColor:PALETTE[spec.code],
+      borderWidth:1.9, borderDash:DASHES[spec.code], pointRadius:0, pointHitRadius:8, tension:.18, spanGaps:false });
+  });
+  var o2 = baseOptions();
+  o2.plugins.tooltip.callbacks.label = function (c){
+    if (String(c.dataset.label).indexOf('Cost threshold') === 0) return ' ' + c.dataset.label + ': ' + num(Math.abs(c.parsed.y), 0) + ' bps';
+    return ' ' + c.dataset.label + ': ' + sign(c.parsed.y, 1) + ' bps vs ' + ref;
+  };
+  o2.scales.y.ticks.callback = function (v){ return num(v, 0) + ' bp'; };
+  o2.scales.y.title = { display:true, text:'Basis points vs ' + ref, color:'#6f6f6f', font:chartFont() };
+  GS.state.charts.spread = new Chart($('#chartSpread'), { type:'line', data:{ labels:labels, datasets:dsets }, options:o2 });
+
+  $('#chart1Legend').innerHTML = LOTS.map(function (spec){
+    return '<span><i style="background:' + PALETTE[spec.code] + '"></i>' + spec.code + ' (' + spec.grams + ' g, ' + spec.purity + ')</span>';
+  }).join('') + '<span><i style="background:rgba(255,193,7,.35)"></i>cost band \u00b1' + cost + ' bps</span>';
+}
+
+/* ---------- signal panel ---------- */
+function renderSignalPanel(){
+  var sig = computeSignals(GS.state);
+  setText($('#signalCostBadge'), 'Hurdle ' + GS.state.cost + ' bps · liq \u2265 ' + GS.state.liq + ' · ' + GS.state.window + ' sessions');
+  var box = $('#stateBox'), icon = $('#stateIcon'), title = $('#stateTitle'), text = $('#stateText'), list = $('#sigList');
+  box.className = 'state ' + (sig.printing.length ? 'state-signal' : 'state-quiet');
+  setText(icon, sig.printing.length ? '\u25b2' : '\u25cf');
+  setText(title, sig.printing.length ? 'SIGNAL — spread clears costs' : 'No meaningful signal — staying quiet');
+  var big = sig.per.filter(function (r){ return r.code !== sig.ref; })[0];
+  var why = big ? (Math.abs(big.last) <= sig.cost ? 'the widest spread is ' + sign(big.last, 1) + ' bps against a ' + sig.cost + ' bps hurdle' : (!big.liqOk ? 'the widest spread clears costs but ' + big.code + ' liquidity scores ' + big.liq + ' against a filter of ' + sig.liq : 'the dislocation is not persistent enough across the sample')) : 'no non-reference contract resolved';
+  setText(text, sig.printing.length
+    ? sig.printing.length + ' of ' + (sig.per.length - 1) + ' non-reference contract' + (sig.printing.length === 1 ? '' : 's') + ' cleared both the ' + sig.cost + ' bps cost hurdle and the liquidity filter over ' + sig.window + ' sessions ending ' + fmtLongDate(sig.evaluatedTo) + '.'
+    : 'Costs are ' + sig.cost + ' bps round trip; ' + why + '. Doing nothing is the correct output here — GoldSpread reports it rather than manufacturing a signal.');
+  if (sig.printing.length){
+    list.innerHTML = sig.printing.map(function (r){
+      return '<li><div class="sig-head"><span class="sig-code">' + r.code + '</span><span class="badge badge-gold">LONG ' + sig.ref + ' / SHORT ' + r.code + '</span>'
+        + '<span class="badge">' + sign(r.last, 1) + ' bps</span><span class="badge">liq ' + r.liq + '</span><span class="badge">' + r.persist + ' days &gt; cost</span></div>'
+        + '<div class="sig-body">Convergence to the ' + sig.ref + ' basis at a ' + sig.cost + ' bps round-trip cost would clear approximately ' + num(Math.abs(r.last) - sig.cost, 1) + ' bps of notional. Entry is only valid while the liquidity score holds; the position is exited when the spread falls inside ' + num(sig.cost / 2, 1) + ' bps.</div></li>';
+    }).join('');
+  } else {
+    list.innerHTML = '<li><div class="sig-head"><span class="badge badge-green"><span class="dot"></span> QUIET</span><span class="badge">' + num(sig.per.length - 1, 0) + ' pairs monitored</span><span class="badge">0 signals</span></div>'
+      + '<div class="sig-body">Diagnostics: widest absolute spread ' + (big ? num(Math.abs(big.last), 1) : '0.0') + ' bps, largest 10-session mean dislocation ' + num(Math.max.apply(null, sig.per.map(function (r){ return r.meanAbs; }).concat([0])), 1) + ' bps, lowest liquidity reading ' + Math.min.apply(null, sig.per.map(function (r){ return r.liq; }).concat([100])) + ' / 100.</div></li>';
+  }
+  $('#signalTable').innerHTML = sig.per.map(function (r){
+    var cls = r.code === sig.ref ? 'flat' : (r.last > 0 ? 'up' : r.last < 0 ? 'down' : 'flat');
+    var verdict = r.code === sig.ref ? '<span class="verdict flat">Reference</span>'
+      : (r.prints ? '<span class="verdict gold">SIGNAL</span>' : '<span class="verdict flat">' + escapeHtml(r.verdict) + '</span>');
+    return '<tr><td class="mono">' + r.code + '</td><td class="num">' + num(r.adj, 2) + '</td><td class="num ' + cls + '">' + (r.code === sig.ref ? '\u2014' : sign(r.last, 1) + ' bp') + '</td>'
+      + '<td class="num">' + (r.code === sig.ref ? '\u2014' : num(r.meanAbs, 1) + ' bp') + '</td><td class="num">' + r.liq + '</td><td class="num">' + r.persist + ' / ' + r.sessions + '</td><td>' + verdict + '</td></tr>';
+  }).join('');
+  return sig;
+}
+
+/* ---------- backtest card ---------- */
+function renderBacktest(){
+  var bt = runBacktest(GS.state), t = bt.total;
+  setText($('#btVerdictBadge'), bt.verdict.tag);
+  $('#btVerdictBadge').className = 'badge ' + (bt.verdict.kind === 'none' ? 'badge-red' : bt.verdict.kind === 'mixed' ? '' : 'badge-green');
+  var cells = [
+    { l:'Gross P&L', v:sign(t.gross, 1) + ' bps', c:t.gross > 0 ? 'up' : t.gross < 0 ? 'down' : 'flat' },
+    { l:'Costs charged', v:'\u2212' + num(t.costs, 1) + ' bps', c:'down' },
+    { l:'Net P&L', v:sign(t.net, 1) + ' bps', c:t.net > 0 ? 'up' : t.net < 0 ? 'down' : 'flat' },
+    { l:'Trades taken', v:num(t.trades, 0), c:'gold' },
+    { l:'Gold buy &amp; hold', v:sign(bt.folds.reduce(function (a, f){ return a + f.gold; }, 0), 1) + ' bps', c:'gold' },
+    { l:'Strategy excess', v:sign(t.net, 1) + ' bps', c:t.net > 0 ? 'up' : t.net < 0 ? 'down' : 'flat' },
+    { l:'Folds positive', v:bt.positiveFolds + ' / ' + bt.nFolds, c:bt.positiveFolds === bt.nFolds ? 'up' : bt.positiveFolds === 0 ? 'down' : 'flat' }
+  ];
+  $('#btGrid').innerHTML = cells.map(function (c){
+    return '<div class="bt-cell"><div class="bl">' + c.l + '</div><div class="bv ' + c.c + '">' + escapeHtml(c.v) + '</div></div>';
+  }).join('');
+  $('#btTable').innerHTML = bt.folds.map(function (f){
+    return '<tr><td class="mono">Fold ' + f.id + '</td><td class="mono" style="font-size:12.3px">' + fmtShortDate(f.from) + ' \u2013 ' + fmtShortDate(f.to) + '</td><td class="num">' + num(f.threshold, 1) + ' bp</td>'
+      + '<td class="num">' + f.trades + '</td><td class="num ' + (f.gross > 0 ? 'up' : 'flat') + '">' + sign(f.gross, 1) + '</td><td class="num down">\u2212' + num(f.costs, 1) + '</td>'
+      + '<td class="num ' + (f.net > 0 ? 'up' : f.net < 0 ? 'down' : 'flat') + '">' + sign(f.net, 1) + '</td><td class="num gold">' + sign(f.gold, 1) + '</td><td class="num ' + (f.excess > 0 ? 'up' : f.excess < 0 ? 'down' : 'flat') + '">' + sign(f.excess, 1) + '</td></tr>';
+  }).join('');
+  setText($('#btHonest'), 'Honest read: ' + bt.verdict.headline + '. ' + bt.reason);
+  $('#btTags').innerHTML = [
+    'Walk-forward, 3 sequential out-of-sample folds of 20 sessions',
+    'Threshold = in-sample mean|spread| + 0.5\u03c3, floored at the ' + bt.cost + ' bps cost',
+    'Costs charged on entry and exit of both legs',
+    'Dislocations reported in bps of notional, not rupees',
+    'No parameter was chosen by looking at the test window'
+  ].map(function (x){ return '<span class="badge">' + escapeHtml(x) + '</span>'; }).join('');
+}
+
+/* ---------- data hygiene + comparison ---------- */
+function renderHygiene(){
+  var rows = hygieneRows(), fails = 0;
+  $('#hygieneList').innerHTML = rows.map(function (r){
+    return '<li><span class="hcheck">\u2713</span><span class="htxt"><b>' + escapeHtml(r.code) + '</b><br>' + r.text + '<br><span class="hcode">' + escapeHtml(r.detail) + '</span></span></li>';
+  }).join('');
+  var st = PART_A.stats;
+  setText($('#hygieneBadge'), st.cleanRows + ' rows passed · ' + (st.rawRows - st.cleanRows) + ' quarantined');
+}
+function renderWhy(){
+  $('#whyTable').innerHTML = WHY.map(function (r){
+    return '<tr>' + r.map(function (c, i){
+      return i === 0 ? '<td style="color:#e6e6e6;font-weight:600">' + escapeHtml(c) + '</td>' : '<td>' + escapeHtml(c) + '</td>';
+    }).join('') + '</tr>';
+  }).join('');
+}
+
+/* ---------- dashboard render ---------- */
+function renderDashboard(session){
+  setText($('#userName'), session.name || session.email);
+  setText($('#userAvatar'), (session.name || session.email || '?').trim().charAt(0).toUpperCase());
+  fillRefPicker();
+  renderTicker(); renderKpi(); renderContracts();
+  destroyCharts();
+  buildCharts();
+  renderSignalPanel(); renderBacktest(); renderHygiene(); renderWhy();
+  renderSnapshot();
+  syncControls();
+  GS.session.markActivity(); GS.session.tick();
+}
+function fillRefPicker(){
+  var sel = $('#refPick');
+  sel.innerHTML = LOTS.map(function (s){ return '<option value="' + s.code + '">' + s.code + ' \u2014 ' + s.label + '</option>'; }).join('');
+  sel.value = GS.state.ref;
+  var sw = $('#sigWindow'); sw.value = String(GS.state.window);
+}
+function syncControls(){
+  $('#costBps').value = GS.state.cost; setText($('#costVal'), GS.state.cost); $('#costNum').value = GS.state.cost;
+  $('#minLiq').value = GS.state.liq; setText($('#liqVal'), GS.state.liq);
+  $('#refPick').value = GS.state.ref; $('#sigWindow').value = String(GS.state.window);
+}
+function refreshLive(){
+  renderTicker(); renderKpi(); renderContracts();
+  destroyCharts(); buildCharts();          /* rebuilt so the cost band tracks the input */
+  renderSignalPanel(); renderBacktest(); renderSnapshot();
+}
+
+/* ---------- routing ---------- */
+var ROUTES = ['#/login', '#/terms', '#/dashboard'];
+function show(which){
+  $$('.page').forEach(function (p){ p.classList.add('hidden'); });
+  var el = $('#view-' + which);
+  if (el) el.classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+function route(){
+  var h = location.hash || '#/login';
+  if (ROUTES.indexOf(h) === -1){
+    if (h.indexOf('#terms-') === 0){ h = '#/terms'; }
+    else { h = '#/login'; }
+  }
+  if (h === '#/dashboard' && !GS.session.valid()){
+    destroyCharts();
+    if (GS.session.current){ GS.session.clear(); toast('Session expired. Please sign in again.', 'err'); }
+    else if (!GS.session.restoring) toast('Please sign in to open the dashboard.', 'err');
+    location.replace('#/login');
+    return;
+  }
+  if (h === '#/dashboard'){ show('dashboard'); renderDashboard(GS.session.current); return; }
+  destroyCharts();
+  if (h === '#/terms'){ show('terms'); renderTerms(); return; }
+  show('login');
+  var em = $('#liEmail'); if (em) setTimeout(function (){ em.focus(); }, 60);
+}
+
+/* ---------- auth UI ---------- */
+function switchTab(which){
+  $$('.tab').forEach(function (t){
+    var on = t.getAttribute('data-tab') === which;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  $('#loginForm').classList.toggle('hidden', which !== 'login');
+  $('#signupForm').classList.toggle('hidden', which !== 'signup');
+  $('#authAlert').classList.add('hidden');
+}
+function showAlert(kind, msg){
+  var box = $('#authAlert');
+  box.className = 'alertbox ' + kind;
+  box.textContent = msg;
+  box.classList.remove('hidden');
+}
+function fieldErr(id, msg){
+  var el = $('#' + id + 'Err');
+  if (msg){ setText(el, msg); var f = $('#' + id); if (f) f.classList.add('err'); }
+  else { setText(el, ''); var g = $('#' + id); if (g) g.classList.remove('err'); }
+  return !msg;
+}
+var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+function validateEmail(v){
+  var s = String(v || '').trim();
+  if (!s) return 'Email is required.';
+  if (!EMAIL_RE.test(s)) return 'Enter a valid email address, for example name@domain.com.';
+  if (s.length > 254) return 'Email address is too long.';
+  return '';
+}
+function passwordScore(p){
+  var s = String(p || ''), sc = 0;
+  if (s.length >= 8) sc++;
+  if (s.length >= 12) sc++;
+  if (/[a-z]/.test(s) && /[A-Z]/.test(s)) sc++;
+  if (/\d/.test(s)) sc++;
+  if (/[^A-Za-z0-9]/.test(s)) sc++;
+  if (s.length && s.length < 8) sc = 1;
+  return Math.max(0, Math.min(4, Math.round(sc * 4 / 5)));
+}
+function validatePassword(p){
+  var s = String(p || '');
+  if (!s) return 'Password is required.';
+  if (s.length < 8) return 'Password must be at least 8 characters.';
+  if (/^\s|\s$/.test(s)) return 'Password cannot start or end with a space.';
+  return '';
+}
+function paintMeter(p){
+  var sc = passwordScore(p), label = ['\u2014', 'Weak', 'Fair', 'Good', 'Strong'][sc] || '\u2014';
+  var cls = ['', 'on-weak', 'on-fair', 'on-good', 'on-strong'][sc] || '';
+  var bars = $$('#pwMeter i');
+  bars.forEach(function (b, i){ b.className = i < sc ? cls : ''; });
+  setText($('#pwStrength'), 'Password strength: ' + label);
+  setText($('#pwLen'), String(p || '').length + ' chars');
+}
+
+/* ---------- event wiring ---------- */
+async function boot(){
+  /* guards */
+  if (!hasWebCrypto()){
+    showAlert('err', 'This browser has no Web Crypto API available. GoldSpread hashes passwords with PBKDF2 and encrypts local data with AES-GCM, so it must be served over https:// (for example GitHub Pages) or http://localhost. Opening the file directly (file://) disables those APIs.');
+    setText($('#liSubmit'), 'Crypto unavailable');
+    $('#liSubmit').disabled = true;
+    setText($('#suSubmit'), 'Crypto unavailable');
+    $('#suSubmit').disabled = true;
+  }
+  /* run the data pipeline once, at boot, before anything renders */
+  GS.state.pipeline = runPipeline();
+  await loadReal();
+
+  $$('.tab').forEach(function (t){ t.addEventListener('click', function (){ switchTab(t.getAttribute('data-tab')); }); });
+  $$('[data-tab-jump]').forEach(function (a){ a.addEventListener('click', function (e){ e.preventDefault(); switchTab(a.getAttribute('data-tab-jump')); }); });
+  $$('[data-pw-toggle]').forEach(function (b){
+    b.addEventListener('click', function (){
+      var f = $('#' + b.getAttribute('data-pw-toggle'));
+      if (!f) return;
+      var showing = f.type === 'text';
+      f.type = showing ? 'password' : 'text';
+      setText(b, showing ? 'SHOW' : 'HIDE');
+      b.setAttribute('aria-label', (showing ? 'Show' : 'Hide') + ' password');
+    });
+  });
+  ['input', 'change'].forEach(function (ev){
+    ['suPassword'].forEach(function (id){ var el = $('#' + id); if (el) el.addEventListener(ev, function (){ paintMeter(el.value); }); });
+  });
+
+  $('#loginForm').addEventListener('submit', async function (e){
+    e.preventDefault();
+    if (!hasWebCrypto()) return;
+    var email = $('#liEmail').value, pw = $('#liPassword').value;
+    var ok = fieldErr('liEmail', validateEmail(email));
+    ok = fieldErr('liPassword', pw ? '' : 'Password is required.') && ok;
+    if (!ok) return;
+    var btn = $('#liSubmit'); btn.disabled = true; setText(btn, 'Deriving key\u2026');
+    try {
+      var rec = await GS.auth.verify(email, pw);
+      if (!rec){
+        showAlert('err', 'No account on this device matches that email and password. Create an account, or check for a typo \u2014 passwords are case sensitive.');
+        return;
+      }
+      await GS.session.start(rec, pw, $('#liRemember').checked);
+      showAlert('ok', 'Signed in. Opening the dashboard\u2026');
+      location.hash = '#/dashboard';
+    } catch (err){
+      showAlert('err', 'Sign-in failed: ' + (err && err.message ? err.message : 'unknown error') + '.');
+    } finally {
+      btn.disabled = false; setText(btn, 'Sign in to dashboard');
+    }
+  });
+
+  $('#signupForm').addEventListener('submit', async function (e){
+    e.preventDefault();
+    if (!hasWebCrypto()) return;
+    var name = $('#suName').value.trim(), email = $('#suEmail').value, pw = $('#suPassword').value, cf = $('#suConfirm').value;
+    var ok = fieldErr('suName', name.length >= 2 ? '' : 'Enter your name (at least 2 characters).');
+    ok = fieldErr('suEmail', validateEmail(email)) && ok;
+    ok = fieldErr('suPassword', validatePassword(pw)) && ok;
+    ok = fieldErr('suConfirm', cf && cf === pw ? '' : (cf ? 'Passwords do not match.' : 'Confirm your password.')) && ok;
+    if (!$('#suTerms').checked){ setText($('#suTermsErr'), 'You must accept the Terms & Conditions to create an account.'); ok = false; }
+    else setText($('#suTermsErr'), '');
+    if (!ok) return;
+    var btn = $('#suSubmit'); btn.disabled = true; setText(btn, 'Hashing password (PBKDF2)\u2026');
+    try {
+      var rec = await GS.auth.register(name, email, pw);
+      store.set(KEYS.TERMS, { accepted:true, at:new Date().toISOString() });
+      await GS.session.start(rec, pw, true);
+      showAlert('ok', 'Account created on this device. Opening the dashboard\u2026');
+      location.hash = '#/dashboard';
+    } catch (err){
+      showAlert('err', err && err.message ? err.message : 'Could not create the account.');
+    } finally {
+      btn.disabled = false; setText(btn, 'Create account');
+    }
+  });
+
+  $('#logoutBtn').addEventListener('click', function (){
+    GS.session.clear();
+    toast('Signed out. Local data cleared for this session.', 'ok');
+    location.hash = '#/login';
+  });
+
+  /* signal controls */
+  $('#costBps').addEventListener('input', function (){ GS.state.cost = Number(this.value); syncControls(); refreshLive(); });
+  $('#costNum').addEventListener('change', function (){
+    var v = Math.max(2, Math.min(60, Math.round(Number(this.value) || 25)));
+    GS.state.cost = v; syncControls(); refreshLive();
+  });
+  $('#minLiq').addEventListener('input', function (){ GS.state.liq = Number(this.value); syncControls(); refreshLive(); });
+  $('#refPick').addEventListener('change', function (){ GS.state.ref = this.value; refreshLive(); });
+  $('#sigWindow').addEventListener('change', function (){ GS.state.window = Number(this.value); refreshLive(); });
+  $('#resetCtl').addEventListener('click', function (){
+    GS.state.cost = 25; GS.state.liq = 30; GS.state.ref = 'GOLDPETAL'; GS.state.window = 10;
+    syncControls(); refreshLive(); toast('Controls reset to defaults.', 'ok');
+  });
+
+  /* terms actions */
+  $$('[data-back-login]').forEach(function (b){ b.addEventListener('click', function (){ location.hash = '#/login'; }); });
+  $$('[data-accept-terms]').forEach(function (b){
+    b.addEventListener('click', function (){
+      store.set(KEYS.TERMS, { accepted:true, at:new Date().toISOString() });
+      var box = $('#suTerms'); if (box) box.checked = true;
+      setText($('#suTermsErr'), '');
+      toast('Terms accepted. Returning to sign in.', 'ok');
+      location.hash = '#/login';
+    });
+  });
+
+  /* security modal */
+  var modal = $('#securityModal');
+  function closeModal(){ modal.classList.add('hidden'); }
+  $$('[data-open-security]').forEach(function (b){ b.addEventListener('click', function (){ modal.classList.remove('hidden'); }); });
+  $('#secClose').addEventListener('click', closeModal);
+  $('#secOk').addEventListener('click', closeModal);
+  modal.addEventListener('click', function (e){ if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', function (e){ if (e.key === 'Escape') closeModal(); });
+
+  /* inactivity: any of these resets the 15-minute clock */
+  ['mousemove', 'keydown', 'click', 'scroll', 'touchstart', 'pointerdown'].forEach(function (ev){
+    window.addEventListener(ev, function (){ if (GS.session.current) GS.session.markActivity(); }, { passive:true });
+  });
+
+  /* restore a remembered session, then route */
+  if (hasWebCrypto()){
+    GS.session.restoring = true;
+    try { await GS.session.restore(); } catch (e){}
+    GS.session.restoring = false;
+  }
+  if (!location.hash) location.hash = '#/login';
+  window.addEventListener('hashchange', route);
+  route();
+}
+
+/* ============================================================
+   Real MCX Bhavcopy snapshot — data.json if present, else the embedded extract
+   ============================================================ */
+var QUOTE_G = { GOLDM:10, GOLDTEN:10, GOLDGUINEA:8, GOLDPETAL:1 };
+var PUR_REAL = { GOLDM:995, GOLDTEN:999, GOLDGUINEA:999, GOLDPETAL:999 };
+var LOT_FLOOR = 500;     /* a leg trading fewer lots than this is treated as thin */
+/* 01 Oct 2026 · [contract, expiry, per-gram on the 999 basis, volume in lots (null = not captured in this extract)] */
+var REAL_FALLBACK = [
+  ['GOLDM','2026-10-05',14832.3,null],['GOLDM','2026-11-05',14965.4,null],['GOLDM','2026-12-04',15097.8,14954],
+  ['GOLDM','2027-01-05',15223.9,1293],['GOLDM','2027-02-05',15376.6,368],['GOLDM','2027-03-05',15523.9,152],
+  ['GOLDTEN','2026-10-30',14943.6,22286],['GOLDTEN','2026-11-30',15083.4,11846],['GOLDTEN','2026-12-31',15212.8,2601],
+  ['GOLDTEN','2027-01-29',15361.1,657],['GOLDTEN','2027-02-26',15491.0,358],['GOLDTEN','2027-03-31',15566.2,25],
+  ['GOLDGUINEA','2026-10-30',14999.1,null],['GOLDGUINEA','2026-11-30',15143.4,null],['GOLDGUINEA','2026-12-31',15271.4,null],
+  ['GOLDGUINEA','2027-01-29',15402.8,null],['GOLDGUINEA','2027-02-26',15509.0,null],['GOLDGUINEA','2027-03-31',15506.2,null],
+  ['GOLDPETAL','2026-10-30',15002.0,239269],['GOLDPETAL','2026-11-30',15138.0,85108],['GOLDPETAL','2026-12-31',15278.0,26538],
+  ['GOLDPETAL','2027-01-29',15423.0,7973],['GOLDPETAL','2027-02-26',15561.0,4126],['GOLDPETAL','2027-03-31',15693.0,727]
+];
+var REAL = { rows:[], date:'', src:'embedded', sessions:1 };
+
+function cleanReal(arr){
+  var out = [], isoRe = /^\d{4}-\d{2}-\d{2}$/;
+  (Array.isArray(arr) ? arr : []).forEach(function (r){
+    if (!r) return;
+    var code = String(r.symbol || '').trim();
+    var date = String(r.trade_date || '').slice(0, 10), exp = String(r.expiry_date || '').slice(0, 10);
+    if (!Object.prototype.hasOwnProperty.call(QUOTE_G, code) || !isoRe.test(date) || !isoRe.test(exp)) return;
+    var pg = Number(r.per_gram_999);
+    if (!isFinite(pg) || pg <= 0){
+      var c = Number(r.close);
+      if (!isFinite(c) || c <= 0) return;
+      pg = c / QUOTE_G[code] * (999 / PUR_REAL[code]);
+    }
+    var vol = (r.volume_lots === null || r.volume_lots === undefined) ? null : Number(r.volume_lots);
+    out.push({ code:code, date:date, expiry:exp, pg:pg, vol:(vol !== null && isFinite(vol)) ? vol : null });
+  });
+  return out;
+}
+async function loadReal(){
+  var rows = [], src = 'embedded';
+  try {
+    var res = await fetch('data.json', { cache:'no-store' });
+    if (res.ok){ rows = cleanReal(await res.json()); if (rows.length) src = 'data.json'; }
+  } catch (e){ rows = []; }
+  if (!rows.length){
+    rows = REAL_FALLBACK.map(function (a){ return { code:a[0], date:'2026-10-01', expiry:a[1], pg:a[2], vol:a[3] }; });
+    src = 'embedded';
+  }
+  var seen = {};
+  rows.forEach(function (r){ seen[r.date] = 1; });
+  var list = Object.keys(seen).sort(), last = list[list.length - 1];
+  REAL = { rows: rows.filter(function (r){ return r.date === last; }), date:last, src:src, sessions:list.length };
+}
+function realCurve(code){
+  return REAL.rows.filter(function (r){ return r.code === code; }).sort(function (a, b){ return a.expiry < b.expiry ? -1 : 1; });
+}
+/* spread of every non-reference contract vs the reference: same expiry date when it exists, else interpolated by calendar days */
+function snapshotRows(ref, cost){
+  var curve = realCurve(ref), out = [];
+  if (!curve.length) return out;
+  REAL.rows.forEach(function (r){
+    if (r.code === ref) return;
+    var hit = null, i;
+    for (i = 0; i < curve.length; i++) if (curve[i].expiry === r.expiry) hit = curve[i];
+    var refPg = null, refVol = null, method = '';
+    if (hit){ refPg = hit.pg; refVol = hit.vol; method = 'same expiry'; }
+    else {
+      for (i = 0; i < curve.length - 1; i++){
+        if (curve[i].expiry < r.expiry && r.expiry < curve[i + 1].expiry){
+          var t = daysBetween(curve[i].expiry, r.expiry) / daysBetween(curve[i].expiry, curve[i + 1].expiry);
+          refPg = curve[i].pg + t * (curve[i + 1].pg - curve[i].pg);
+          refVol = (curve[i].vol === null || curve[i + 1].vol === null) ? null : Math.min(curve[i].vol, curve[i + 1].vol);
+          method = 'interpolated';
+          break;
+        }
+      }
+    }
+    if (refPg === null) return;
+    var b = bps(r.pg, refPg);
+    var minVol = (r.vol === null || refVol === null) ? null : Math.min(r.vol, refVol);
+    var verdict = 'within';
+    if (Math.abs(b) > cost) verdict = minVol === null ? 'unknown' : (minVol < LOT_FLOOR ? 'thin' : 'clears');
+    out.push({ code:r.code, expiry:r.expiry, pg:r.pg, refPg:refPg, bps:b, method:method, minVol:minVol, verdict:verdict });
+  });
+  out.sort(function (a, b){ return a.expiry < b.expiry ? -1 : a.expiry > b.expiry ? 1 : a.code < b.code ? -1 : 1; });
+  return out;
+}
+function monthLabel(s){
+  var d = fromIso(s), m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return m[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2);
+}
+function renderSnapshot(){
+  if (!$('#snapTable')) return;
+  var ref = GS.state.ref, cost = GS.state.cost;
+  var rows = snapshotRows(ref, cost);
+  setText($('#snapDate'), 'Close of ' + fmtLongDate(REAL.date));
+  setText($('#snapSrc'), REAL.src === 'data.json'
+    ? 'data.json · ' + REAL.sessions + ' session' + (REAL.sessions === 1 ? '' : 's') + ' loaded'
+    : 'Embedded Bhavcopy extract · some volumes not captured');
+
+  var clear = rows.filter(function (r){ return r.verdict === 'clears'; }).length;
+  var thin = rows.filter(function (r){ return r.verdict === 'thin'; }).length;
+  var unk = rows.filter(function (r){ return r.verdict === 'unknown'; }).length;
+  var msg;
+  if (!rows.length) msg = 'No comparable expiries were found against ' + ref + '.';
+  else if (!clear && !thin && !unk) msg = 'Against ' + ref + ', none of the ' + rows.length + ' comparisons clears the ' + cost + ' bps hurdle. Staying quiet.';
+  else msg = 'Against ' + ref + ', ' + clear + ' of ' + rows.length + ' comparisons exceed the ' + cost + ' bps hurdle on liquid legs'
+    + (thin ? '; ' + thin + ' more ' + (thin === 1 ? 'exceeds' : 'exceed') + ' it only on thin legs (under ' + LOT_FLOOR + ' lots) and ' + (thin === 1 ? 'is' : 'are') + ' ignored' : '')
+    + (unk ? '; ' + unk + ' ' + (unk === 1 ? 'exceeds it but its volume is' : 'exceed it but their volume is') + ' missing' : '')
+    + '. This is one session: it shows where prices differ today, not that the gap persists or survives execution costs.';
+  setText($('#snapHonest'), 'Honest read: ' + msg);
+
+  var badge = {
+    clears:'<span class="badge badge-green">Exceeds hurdle</span>',
+    thin:'<span class="badge badge-gold">Thin leg — ignored</span>',
+    unknown:'<span class="badge badge-sample">Volume missing</span>',
+    within:'<span class="badge">Within cost</span>'
+  };
+  $('#snapTable').innerHTML = rows.map(function (r){
+    return '<tr><td class="mono" style="font-size:12.3px">' + fmtLongDate(r.expiry) + '</td><td>' + escapeHtml(r.code) + '</td>'
+      + '<td class="num">' + num(r.pg, 1) + '</td><td class="num">' + num(r.refPg, 1) + '</td>'
+      + '<td class="num ' + (Math.abs(r.bps) > cost ? 'gold' : 'flat') + '">' + sign(r.bps, 1) + ' bp</td>'
+      + '<td style="font-size:12.3px;color:#9a9a9a">' + escapeHtml(r.method) + '</td>'
+      + '<td class="num">' + (r.minVol === null ? '—' : num(r.minVol, 0)) + '</td><td>' + badge[r.verdict] + '</td></tr>';
+  }).join('');
+  setText($('#snapHint'), 'Spread = (contract ₹/g ÷ reference ₹/g − 1) × 10,000 bps; positive means the contract is richer than the reference. GOLDM expires around the 5th and the others at month end, so where the reference has no contract on the same date its price is interpolated between its two nearest expiries by calendar days. The hurdle follows the cost control in the signal panel.');
+
+  /* chart: per-gram by contract month */
+  var keys = [];
+  REAL.rows.forEach(function (r){ var k = r.expiry.slice(0, 7); if (keys.indexOf(k) < 0) keys.push(k); });
+  keys.sort();
+  var labels = keys.map(function (k){ return monthLabel(k + '-01'); });
+  var sets = LOTS.map(function (spec){
+    var exps = [];
+    var data = keys.map(function (k){
+      var hit = null;
+      REAL.rows.forEach(function (r){ if (r.code === spec.code && r.expiry.slice(0, 7) === k) hit = r; });
+      exps.push(hit ? hit.expiry : '');
+      return hit ? Math.round(hit.pg * 100) / 100 : null;
+    });
+    return { label:spec.code, data:data, _exp:exps, borderColor:PALETTE[spec.code], backgroundColor:PALETTE[spec.code],
+      borderWidth:spec.code === 'GOLDM' ? 2.2 : 1.7, borderDash:DASHES[spec.code], pointRadius:3, pointHoverRadius:5, tension:.2, spanGaps:true };
+  });
+  var o = baseOptions();
+  o.scales.x.ticks.maxTicksLimit = 12;
+  o.plugins.tooltip.callbacks.label = function (c){
+    var e = c.dataset._exp && c.dataset._exp[c.dataIndex];
+    return ' ' + c.dataset.label + ': ' + rupee(c.parsed.y, 1) + ' / g' + (e ? ' · expires ' + fmtLongDate(e) : '');
+  };
+  o.scales.y.ticks.callback = function (v){ return '\u20b9' + num(v, 0); };
+  o.scales.y.title = { display:true, text:'\u20b9 per gram, 999 purity basis', color:'#6f6f6f', font:chartFont() };
+  if (GS.state.charts.snap){ try { GS.state.charts.snap.destroy(); } catch (e){} }
+  GS.state.charts.snap = new Chart($('#chartSnap'), { type:'line', data:{ labels:labels, datasets:sets }, options:o });
+  $('#snapLegend').innerHTML = LOTS.map(function (spec){
+    return '<span><i style="background:' + PALETTE[spec.code] + '"></i>' + spec.code + ' (quoted per ' + spec.quote + ' g, ' + spec.purity + ')</span>';
+  }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', boot);
+
+
+</script>
+</body>
+</html>
