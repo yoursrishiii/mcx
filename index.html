@@ -499,7 +499,7 @@ tbody tr:hover{background:#1a1a1a}
         <span class="brand-txt">Gold<em>Spread</em></span>
       </a>
       <span class="badge badge-gold"><span class="dot pulse"></span> MCX gold · normalized</span>
-      <span class="badge badge-sample" title="All values on this page are simulated in the browser.">Sample data — connect Bhavcopy feed for live use</span>
+      <span class="badge badge-sample" title="The snapshot section is real MCX Bhavcopy data. History, signals and the backtest are simulated until more daily files are loaded.">Real snapshot + simulated history</span>
     </div>
     <div class="tb-right">
       <span class="badge badge-lock" id="sessionClock" title="Auto-logout after 15 minutes of inactivity">⏱ 15:00</span>
@@ -522,7 +522,8 @@ tbody tr:hover{background:#1a1a1a}
         </div>
         <div class="row">
           <span class="badge" id="dataWindowBadge">—</span>
-          <span class="badge badge-sample">Simulated Bhavcopy</span>
+          <span class="badge badge-green">Real MCX snapshot</span>
+          <span class="badge badge-sample">Simulated history</span>
         </div>
       </div>
       <p style="margin:0; color:#a5a5a5; font-size:13.8px; max-width:96ch">
@@ -532,15 +533,41 @@ tbody tr:hover{background:#1a1a1a}
       </p>
     </div>
 
+    <div class="card" style="margin-bottom:16px" id="snapCard">
+      <div class="card-head">
+        <div>
+          <div class="eyebrow">Real exchange data</div>
+          <h2 class="section-title">MCX Bhavcopy snapshot — where the four contracts closed</h2>
+          <small>Purity-adjusted ₹ per gram of 999 gold, by contract month · spreads are measured against the reference contract chosen in the signal panel</small>
+        </div>
+        <div class="row">
+          <span class="badge badge-green" id="snapDate">—</span>
+          <span class="badge badge-sample" id="snapSrc">—</span>
+        </div>
+      </div>
+      <div class="honest" id="snapHonest">—</div>
+      <div class="legend-inline" id="snapLegend" style="margin:12px 0 6px"></div>
+      <div class="chart-box"><canvas id="chartSnap" aria-label="Per-gram price by contract month, real MCX Bhavcopy"></canvas></div>
+      <div class="table-scroll" style="margin-top:14px">
+        <table>
+          <thead>
+            <tr><th>Expiry</th><th>Contract</th><th class="num">₹ / g (999)</th><th class="num">Reference ₹ / g</th><th class="num">Spread</th><th>Basis</th><th class="num">Thinner leg (lots)</th><th>Verdict</th></tr>
+          </thead>
+          <tbody id="snapTable"></tbody>
+        </table>
+      </div>
+      <div class="hint" style="margin-top:10px" id="snapHint"></div>
+    </div>
+
     <div class="kpi-row" id="kpiRow"></div>
 
     <div class="eyebrow" style="margin-bottom:10px">Contracts tracked</div>
     <div class="contracts" id="contractGrid"></div>
 
     <div class="formula" role="note">
-      <b>Normalization logic</b> — &nbsp; per_gram = contract_price / grams_per_lot &nbsp;→&nbsp; adjusted = per_gram × (999 / purity) &nbsp;→&nbsp; spread_bps = (adjusted / reference_adjusted − 1) × 10,000
+      <b>Normalization logic</b> — &nbsp; per_gram = contract_price / grams_in_quote_unit &nbsp;→&nbsp; adjusted = per_gram × (999 / purity) &nbsp;→&nbsp; spread_bps = (adjusted / reference_adjusted − 1) × 10,000
       <div style="margin-top:6px;color:#9a9a9a;font-size:12.3px;font-family:var(--sans)">
-        Every contract is re-based to one common basis: <b style="color:var(--gold)">₹ per gram of 999-purity gold</b>. GOLDM quotes 995-purity metal, so it is scaled by 999/995 = 1.00402; the 999 contracts are already on the reference basis (factor 1.00000). Spreads are relative to the reference contract selected below.
+        Every contract is re-based to one common basis: <b style="color:var(--gold)">₹ per gram of 999-purity gold</b>. GOLDM quotes 995-purity metal, so it is scaled by 999/995 = 1.00402; the 999 contracts are already on the reference basis (factor 1.00000). Prices are quoted per 10 g for GOLDM and GOLDTEN, per 8 g for GOLDGUINEA and per 1 g for GOLDPETAL — GOLDM has a 100 g lot but is still quoted per 10 g. Spreads are relative to the reference contract selected below.
       </div>
     </div>
 
@@ -549,7 +576,7 @@ tbody tr:hover{background:#1a1a1a}
         <div class="card-head">
           <div>
             <h2 class="section-title">Normalized per-gram price — all four contracts</h2>
-            <small>Purity-adjusted ₹ per gram of 999 gold · expiry-aware series</small>
+            <small>Purity-adjusted ₹ per gram of 999 gold · expiry-aware series · simulated history</small>
           </div>
           <div class="legend-inline" id="chart1Legend"></div>
         </div>
@@ -572,7 +599,7 @@ tbody tr:hover{background:#1a1a1a}
       <div class="card-head">
         <div>
           <h2 class="section-title">Cost-aware signal panel</h2>
-          <small>Quiet by default — a signal prints only when the spread clears costs and the liquidity filter</small>
+          <small>Quiet by default — a signal prints only when the spread clears costs and the liquidity filter · evaluated on simulated history</small>
         </div>
         <span class="badge" id="signalCostBadge">—</span>
       </div>
@@ -640,7 +667,7 @@ tbody tr:hover{background:#1a1a1a}
       <div class="card-head">
         <div>
           <h2 class="section-title">Walk-forward backtest</h2>
-          <small>Three sequential out-of-sample folds · threshold calibrated in-sample, applied forward</small>
+          <small>Three sequential out-of-sample folds · threshold calibrated in-sample, applied forward · on simulated history</small>
         </div>
         <span class="badge" id="btVerdictBadge">—</span>
       </div>
@@ -665,7 +692,7 @@ tbody tr:hover{background:#1a1a1a}
       <div class="card-head">
         <div>
           <h2 class="section-title">Data hygiene — checks actually applied</h2>
-          <small>Each row below is computed from the loaded sample at runtime, not asserted</small>
+          <small>Computed at runtime on the simulated feed, with defects injected on purpose to prove the checks catch them. The real snapshot was cleaned offline by the same rules: futures only, trimmed symbols, date check, expiry parsing.</small>
         </div>
         <span class="badge" id="hygieneBadge">—</span>
       </div>
@@ -690,7 +717,7 @@ tbody tr:hover{background:#1a1a1a}
     </div>
 
     <div class="foot">
-      <p><strong>GoldSpread demo.</strong> Analytics and education only — not investment advice, not a registered research analyst service, and not an order-routing system. All prices, spreads and backtest figures on this page are generated in your browser from a seeded simulation and are labelled as sample data. Connect MCX's public Bhavcopy feed server-side for live figures.</p>
+      <p><strong>GoldSpread demo.</strong> Analytics and education only — not investment advice, not a registered research analyst service, and not an order-routing system. The snapshot section shows real MCX Bhavcopy closing prices for the date stated. The history charts, signal panel and backtest are generated in your browser from a seeded simulation and are labelled as sample data until more daily Bhavcopy files are loaded.</p>
       <p style="margin-bottom:0">Data model: MCX public daily Bhavcopy (key-free) · Contracts: GOLDM (100 g, 995), GOLDTEN (10 g, 999), GOLDGUINEA (8 g, 999), GOLDPETAL (1 g, 999) · <a href="#/terms">Terms &amp; Conditions</a> · <button class="btn btn-ghost btn-sm" type="button" data-open-security="1">Security details</button></p>
     </div>
   </div>
@@ -725,15 +752,16 @@ tbody tr:hover{background:#1a1a1a}
 
 var PURITY_REF = 999;            // every price is re-based to 999-purity per gram
 var LOTS = [
-  { code:'GOLDM',     label:'Gold 100g',      grams:100, purity:995, liqBase:33 },
-  { code:'GOLDTEN',   label:'Gold Ten 10g',   grams:10,  purity:999, liqBase:79 },
-  { code:'GOLDGUINEA',label:'Gold Guinea 8g', grams:8,   purity:999, liqBase:44 },
-  { code:'GOLDPETAL', label:'Gold Petal 1g',  grams:1,   purity:999, liqBase:93 }
+  { code:'GOLDM',     label:'Gold 100g',      grams:100, quote:10, purity:995, liqBase:33 },
+  { code:'GOLDTEN',   label:'Gold Ten 10g',   grams:10,  quote:10, purity:999, liqBase:79 },
+  { code:'GOLDGUINEA',label:'Gold Guinea 8g', grams:8,   quote:8,  purity:999, liqBase:44 },
+  { code:'GOLDPETAL', label:'Gold Petal 1g',  grams:1,   quote:1,  purity:999, liqBase:93 }
 ];
 var CODES = LOTS.map(function (c) { return c.code; });
 var KEYS = { USERS:'gs_users_v1', SESSION:'gs_session_v1', TERMS:'gs_terms_v1', PREFS:'gs_prefs_v1' };
 var SESSION_MINUTES = 15;
 var N_SESSIONS = 96;
+var REAL_ANCHOR = 14943.6;       // real GOLDTEN Oct-26 per-gram close, 01 Oct 2026; simulated history is scaled to end here
 
 /* ---------- seeded RNG so the sample is identical on every load ---------- */
 function mulberry32(a){
@@ -847,6 +875,7 @@ function buildBase(){
   return out;
 }
 var BASE999 = buildBase();
+(function (){ var k = REAL_ANCHOR / BASE999[BASE999.length - 1]; for (var i = 0; i < BASE999.length; i++) BASE999[i] *= k; })();
 
 /* ---------- per contract: expiry-keyed dislocations + liquidity ---------- */
 function activeExpiry(dateIso){
@@ -869,15 +898,15 @@ function buildContract(spec){
     state[exp] = state[exp] * 0.84 + gauss() * 5.2 + carry * 0.28;
     var disl = Math.max(-80, Math.min(80, state[exp] + carry));
     var adj = BASE999[i] * (1 + disl / 10000);
-    var raw = Math.round(toRawFromAdjusted(adj, spec.grams, spec.purity));
+    var raw = Math.round(toRawFromAdjusted(adj, spec.quote, spec.purity));
     var liq = Math.max(3, Math.min(100, spec.liqBase + 9 * Math.sin(i / 6) + gauss() * 7));
     var vol = Math.round((spec.liqBase + 20) * 140 * (1 + Math.abs(gauss()) * 0.35));
     var oi = Math.round(vol * (0.8 + Math.abs(gauss()) * 0.5));
     rows.push({
       date: date, contract: spec.code, expiry: exp,
       raw: raw, grams: spec.grams, purity: spec.purity,
-      perGram: perGram(raw, spec.grams),
-      adj: adjPerGram(raw, spec.grams, spec.purity),
+      perGram: perGram(raw, spec.quote),
+      adj: adjPerGram(raw, spec.quote, spec.purity),
       disl: disl, dte: dte, liq: liq, volume: vol, oi: oi, rolled: prev !== exp
     });
     expiryCounts[exp] = (expiryCounts[exp] || 0) + 1;
@@ -914,12 +943,12 @@ function buildRawBhavcopy(){
   }
   /* deliberate feed defects the pipeline must catch and report */
   var last = SESSIONS[SESSIONS.length - 1], mid = SESSIONS[40], early = SESSIONS[12];
-  raw.push({ SYMBOL:'GOLDTEN     ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(mid))), REQ_DATE: fmtDMY(fromIso(mid)), RESP_DATE: fmtMDY(addDays(fromIso(mid), 31)), CLOSE:'103240' });
-  raw.push({ SYMBOL:'GOLDPETAL    ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(last))), REQ_DATE: fmtDMY(fromIso(last)), RESP_DATE: fmtMDY(addDays(fromIso(last), 28)), CLOSE:'10230' });
+  raw.push({ SYMBOL:'GOLDTEN     ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(mid))), REQ_DATE: fmtDMY(fromIso(mid)), RESP_DATE: fmtMDY(addDays(fromIso(mid), 31)), CLOSE:'149400' });
+  raw.push({ SYMBOL:'GOLDPETAL    ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(last))), REQ_DATE: fmtDMY(fromIso(last)), RESP_DATE: fmtMDY(addDays(fromIso(last), 28)), CLOSE:'15000' });
   injected.push('response-date-mismatch'); injected.push('response-date-mismatch');
   raw.push({ SYMBOL:'GOLDGUINEA  ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(early))), REQ_DATE: fmtDMY(fromIso(early)), RESP_DATE: fmtMDY(fromIso(early)), CLOSE:'' });
   injected.push('blank-close');
-  raw.push({ SYMBOL:'GOLDM       ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(mid))), REQ_DATE: fmtDMY(fromIso(mid)), RESP_DATE: fmtMDY(fromIso(mid)), CLOSE:'1019880' });
+  raw.push({ SYMBOL:'GOLDM       ', EXPIRY_DT: expiryCompact(fromIso(activeExpiry(mid))), REQ_DATE: fmtDMY(fromIso(mid)), RESP_DATE: fmtMDY(fromIso(mid)), CLOSE:'148400' });
   injected.push('duplicate-key');
   quirks = injected.length;
   return { raw: raw, built: built, quirks: quirks, injected: injected };
@@ -963,7 +992,7 @@ function runPipeline(){
     clean.push({
       date: req, contract: sym, expiry: exp,
       grams: spec.grams, purity: spec.purity, rawPrice: close,
-      perGram: perGram(close, spec.grams), adj: adjPerGram(close, spec.grams, spec.purity),
+      perGram: perGram(close, spec.quote), adj: adjPerGram(close, spec.quote, spec.purity),
       factor: purityFactor(spec.purity)
     });
   }
@@ -1168,7 +1197,7 @@ var TERMS = [
   { id:'acceptance', h:'Acceptance of Terms', p:['By accessing GoldSpread you agree to these Terms & Conditions in full. If you do not agree with any part of them, you must stop using the service immediately.', 'These terms apply to every visitor, registered user and anyone who otherwise accesses the analytics presented here. Continued use after any revision constitutes acceptance of the revised terms.'], ul:[] },
   { id:'nature', h:'Nature of Service', p:['GoldSpread is an analytics and educational tool for commodity derivatives. It computes normalization, relative-value and spread statistics for MCX gold futures and presents them for study.', 'GoldSpread is not an investment adviser, portfolio manager, research analyst, broker or exchange member. Nothing on this service is a recommendation, solicitation or offer to buy, sell or hold any contract.', 'Any signal, flag or score displayed is the output of a stated, deterministic rule set applied to data you can inspect. It is information, not advice, and it is not personalized to your circumstances.'], ul:[] },
   { id:'risk', h:'Trading Risk Disclosure', p:['Trading in commodity derivatives is not suitable for everyone and involves a substantial risk of loss. You may lose more than your initial margin. Past performance of any market, contract or strategy is not indicative of future results.', 'GoldSpread is not registered investment advice. No output from this service has been reviewed or approved by any regulator, exchange or licensed adviser.', 'Spreads that look attractive on historical data can persist, widen, or converge far more slowly than expected. Contract liquidity, position limits, expiry effects, margin calls and execution slippage can each turn an apparent opportunity into a loss.'], ul:[] },
-  { id:'data', h:'Data Sources', p:['The intended production data source is the public, key-free daily MCX Bhavcopy publication for gold futures contracts. The demo you are viewing generates its figures in the browser from a seeded simulation.', 'Exchange data can be delayed, revised, incomplete or temporarily unavailable. GoldSpread makes no guarantee of accuracy, completeness, timeliness or fitness for any purpose, and no responsibility is accepted for errors arising from third-party data.'], ul:[] },
+  { id:'data', h:'Data Sources', p:['The intended production data source is the public, key-free daily MCX Bhavcopy publication for gold futures contracts. The snapshot section shows real MCX Bhavcopy closing prices for the date stated on it. The history, signal and backtest panels are generated in the browser from a seeded simulation until more daily files are loaded.', 'Exchange data can be delayed, revised, incomplete or temporarily unavailable. GoldSpread makes no guarantee of accuracy, completeness, timeliness or fitness for any purpose, and no responsibility is accepted for errors arising from third-party data.'], ul:[] },
   { id:'backtest', h:'Backtest Disclaimer', p:['Backtested and historical results do not guarantee, predict or imply future performance. Walk-forward evaluation reduces but does not eliminate the risk of overfitting, look-ahead bias or survivorship bias.', 'Backtests in GoldSpread are charged explicit transaction costs on both legs. Even so, modelled costs, fills and liquidity are approximations. A backtest is a study of a rule set, not a promise about a trading account.'], ul:[] },
   { id:'accounts', h:'User Accounts and Security', p:['This demonstration implements front-end-only authentication. A password is put through PBKDF2 with a random per-account salt, and only the derived hash is retained in this browser. Data written to browser storage is encrypted client-side with AES-GCM.', 'You are responsible for the device you use. Anyone with access to this unlocked browser profile may be able to read locally stored data. Do not reuse a password that protects anything else.', 'Do not claim true end-to-end encryption, bank-grade security or regulatory-grade protection on the basis of this demo — it provides none of them, and it has no backend.'], ul:[] },
   { id:'privacy', h:'Privacy and Data Handling', p:['GoldSpread has no server-side database in this demo. The name, email, password hash and preferences you enter are stored locally in your own browser and are not transmitted anywhere by this page.', 'Clearing your browser storage removes that data permanently. No analytics identifiers, advertising pixels or third-party trackers are used beyond the font and chart libraries loaded from public CDNs.'], ul:[] },
@@ -1570,6 +1599,7 @@ function renderDashboard(session){
   destroyCharts();
   buildCharts();
   renderSignalPanel(); renderBacktest(); renderHygiene(); renderWhy();
+  renderSnapshot();
   syncControls();
   GS.session.markActivity(); GS.session.tick();
 }
@@ -1587,7 +1617,7 @@ function syncControls(){
 function refreshLive(){
   renderTicker(); renderKpi(); renderContracts();
   destroyCharts(); buildCharts();          /* rebuilt so the cost band tracks the input */
-  renderSignalPanel(); renderBacktest();
+  renderSignalPanel(); renderBacktest(); renderSnapshot();
 }
 
 /* ---------- routing ---------- */
@@ -1687,6 +1717,7 @@ async function boot(){
   }
   /* run the data pipeline once, at boot, before anything renders */
   GS.state.pipeline = runPipeline();
+  await loadReal();
 
   $$('.tab').forEach(function (t){ t.addEventListener('click', function (){ switchTab(t.getAttribute('data-tab')); }); });
   $$('[data-tab-jump]').forEach(function (a){ a.addEventListener('click', function (e){ e.preventDefault(); switchTab(a.getAttribute('data-tab-jump')); }); });
@@ -1809,10 +1840,167 @@ async function boot(){
   window.addEventListener('hashchange', route);
   route();
 }
+
+/* ============================================================
+   Real MCX Bhavcopy snapshot — data.json if present, else the embedded extract
+   ============================================================ */
+var QUOTE_G = { GOLDM:10, GOLDTEN:10, GOLDGUINEA:8, GOLDPETAL:1 };
+var PUR_REAL = { GOLDM:995, GOLDTEN:999, GOLDGUINEA:999, GOLDPETAL:999 };
+var LOT_FLOOR = 500;     /* a leg trading fewer lots than this is treated as thin */
+/* 01 Oct 2026 · [contract, expiry, per-gram on the 999 basis, volume in lots (null = not captured in this extract)] */
+var REAL_FALLBACK = [
+  ['GOLDM','2026-10-05',14832.3,null],['GOLDM','2026-11-05',14965.4,null],['GOLDM','2026-12-04',15097.8,14954],
+  ['GOLDM','2027-01-05',15223.9,1293],['GOLDM','2027-02-05',15376.6,368],['GOLDM','2027-03-05',15523.9,152],
+  ['GOLDTEN','2026-10-30',14943.6,22286],['GOLDTEN','2026-11-30',15083.4,11846],['GOLDTEN','2026-12-31',15212.8,2601],
+  ['GOLDTEN','2027-01-29',15361.1,657],['GOLDTEN','2027-02-26',15491.0,358],['GOLDTEN','2027-03-31',15566.2,25],
+  ['GOLDGUINEA','2026-10-30',14999.1,null],['GOLDGUINEA','2026-11-30',15143.4,null],['GOLDGUINEA','2026-12-31',15271.4,null],
+  ['GOLDGUINEA','2027-01-29',15402.8,null],['GOLDGUINEA','2027-02-26',15509.0,null],['GOLDGUINEA','2027-03-31',15506.2,null],
+  ['GOLDPETAL','2026-10-30',15002.0,239269],['GOLDPETAL','2026-11-30',15138.0,85108],['GOLDPETAL','2026-12-31',15278.0,26538],
+  ['GOLDPETAL','2027-01-29',15423.0,7973],['GOLDPETAL','2027-02-26',15561.0,4126],['GOLDPETAL','2027-03-31',15693.0,727]
+];
+var REAL = { rows:[], date:'', src:'embedded', sessions:1 };
+
+function cleanReal(arr){
+  var out = [], isoRe = /^\d{4}-\d{2}-\d{2}$/;
+  (Array.isArray(arr) ? arr : []).forEach(function (r){
+    if (!r) return;
+    var code = String(r.symbol || '').trim();
+    var date = String(r.trade_date || '').slice(0, 10), exp = String(r.expiry_date || '').slice(0, 10);
+    if (!Object.prototype.hasOwnProperty.call(QUOTE_G, code) || !isoRe.test(date) || !isoRe.test(exp)) return;
+    var pg = Number(r.per_gram_999);
+    if (!isFinite(pg) || pg <= 0){
+      var c = Number(r.close);
+      if (!isFinite(c) || c <= 0) return;
+      pg = c / QUOTE_G[code] * (999 / PUR_REAL[code]);
+    }
+    var vol = (r.volume_lots === null || r.volume_lots === undefined) ? null : Number(r.volume_lots);
+    out.push({ code:code, date:date, expiry:exp, pg:pg, vol:(vol !== null && isFinite(vol)) ? vol : null });
+  });
+  return out;
+}
+async function loadReal(){
+  var rows = [], src = 'embedded';
+  try {
+    var res = await fetch('data.json', { cache:'no-store' });
+    if (res.ok){ rows = cleanReal(await res.json()); if (rows.length) src = 'data.json'; }
+  } catch (e){ rows = []; }
+  if (!rows.length){
+    rows = REAL_FALLBACK.map(function (a){ return { code:a[0], date:'2026-10-01', expiry:a[1], pg:a[2], vol:a[3] }; });
+    src = 'embedded';
+  }
+  var seen = {};
+  rows.forEach(function (r){ seen[r.date] = 1; });
+  var list = Object.keys(seen).sort(), last = list[list.length - 1];
+  REAL = { rows: rows.filter(function (r){ return r.date === last; }), date:last, src:src, sessions:list.length };
+}
+function realCurve(code){
+  return REAL.rows.filter(function (r){ return r.code === code; }).sort(function (a, b){ return a.expiry < b.expiry ? -1 : 1; });
+}
+/* spread of every non-reference contract vs the reference: same expiry date when it exists, else interpolated by calendar days */
+function snapshotRows(ref, cost){
+  var curve = realCurve(ref), out = [];
+  if (!curve.length) return out;
+  REAL.rows.forEach(function (r){
+    if (r.code === ref) return;
+    var hit = null, i;
+    for (i = 0; i < curve.length; i++) if (curve[i].expiry === r.expiry) hit = curve[i];
+    var refPg = null, refVol = null, method = '';
+    if (hit){ refPg = hit.pg; refVol = hit.vol; method = 'same expiry'; }
+    else {
+      for (i = 0; i < curve.length - 1; i++){
+        if (curve[i].expiry < r.expiry && r.expiry < curve[i + 1].expiry){
+          var t = daysBetween(curve[i].expiry, r.expiry) / daysBetween(curve[i].expiry, curve[i + 1].expiry);
+          refPg = curve[i].pg + t * (curve[i + 1].pg - curve[i].pg);
+          refVol = (curve[i].vol === null || curve[i + 1].vol === null) ? null : Math.min(curve[i].vol, curve[i + 1].vol);
+          method = 'interpolated';
+          break;
+        }
+      }
+    }
+    if (refPg === null) return;
+    var b = bps(r.pg, refPg);
+    var minVol = (r.vol === null || refVol === null) ? null : Math.min(r.vol, refVol);
+    var verdict = 'within';
+    if (Math.abs(b) > cost) verdict = minVol === null ? 'unknown' : (minVol < LOT_FLOOR ? 'thin' : 'clears');
+    out.push({ code:r.code, expiry:r.expiry, pg:r.pg, refPg:refPg, bps:b, method:method, minVol:minVol, verdict:verdict });
+  });
+  out.sort(function (a, b){ return a.expiry < b.expiry ? -1 : a.expiry > b.expiry ? 1 : a.code < b.code ? -1 : 1; });
+  return out;
+}
+function monthLabel(s){
+  var d = fromIso(s), m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return m[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2);
+}
+function renderSnapshot(){
+  if (!$('#snapTable')) return;
+  var ref = GS.state.ref, cost = GS.state.cost;
+  var rows = snapshotRows(ref, cost);
+  setText($('#snapDate'), 'Close of ' + fmtLongDate(REAL.date));
+  setText($('#snapSrc'), REAL.src === 'data.json'
+    ? 'data.json · ' + REAL.sessions + ' session' + (REAL.sessions === 1 ? '' : 's') + ' loaded'
+    : 'Embedded Bhavcopy extract · some volumes not captured');
+
+  var clear = rows.filter(function (r){ return r.verdict === 'clears'; }).length;
+  var thin = rows.filter(function (r){ return r.verdict === 'thin'; }).length;
+  var unk = rows.filter(function (r){ return r.verdict === 'unknown'; }).length;
+  var msg;
+  if (!rows.length) msg = 'No comparable expiries were found against ' + ref + '.';
+  else if (!clear && !thin && !unk) msg = 'Against ' + ref + ', none of the ' + rows.length + ' comparisons clears the ' + cost + ' bps hurdle. Staying quiet.';
+  else msg = 'Against ' + ref + ', ' + clear + ' of ' + rows.length + ' comparisons exceed the ' + cost + ' bps hurdle on liquid legs'
+    + (thin ? '; ' + thin + ' more ' + (thin === 1 ? 'exceeds' : 'exceed') + ' it only on thin legs (under ' + LOT_FLOOR + ' lots) and ' + (thin === 1 ? 'is' : 'are') + ' ignored' : '')
+    + (unk ? '; ' + unk + ' ' + (unk === 1 ? 'exceeds it but its volume is' : 'exceed it but their volume is') + ' missing' : '')
+    + '. This is one session: it shows where prices differ today, not that the gap persists or survives execution costs.';
+  setText($('#snapHonest'), 'Honest read: ' + msg);
+
+  var badge = {
+    clears:'<span class="badge badge-green">Exceeds hurdle</span>',
+    thin:'<span class="badge badge-gold">Thin leg — ignored</span>',
+    unknown:'<span class="badge badge-sample">Volume missing</span>',
+    within:'<span class="badge">Within cost</span>'
+  };
+  $('#snapTable').innerHTML = rows.map(function (r){
+    return '<tr><td class="mono" style="font-size:12.3px">' + fmtLongDate(r.expiry) + '</td><td>' + escapeHtml(r.code) + '</td>'
+      + '<td class="num">' + num(r.pg, 1) + '</td><td class="num">' + num(r.refPg, 1) + '</td>'
+      + '<td class="num ' + (Math.abs(r.bps) > cost ? 'gold' : 'flat') + '">' + sign(r.bps, 1) + ' bp</td>'
+      + '<td style="font-size:12.3px;color:#9a9a9a">' + escapeHtml(r.method) + '</td>'
+      + '<td class="num">' + (r.minVol === null ? '—' : num(r.minVol, 0)) + '</td><td>' + badge[r.verdict] + '</td></tr>';
+  }).join('');
+  setText($('#snapHint'), 'Spread = (contract ₹/g ÷ reference ₹/g − 1) × 10,000 bps; positive means the contract is richer than the reference. GOLDM expires around the 5th and the others at month end, so where the reference has no contract on the same date its price is interpolated between its two nearest expiries by calendar days. The hurdle follows the cost control in the signal panel.');
+
+  /* chart: per-gram by contract month */
+  var keys = [];
+  REAL.rows.forEach(function (r){ var k = r.expiry.slice(0, 7); if (keys.indexOf(k) < 0) keys.push(k); });
+  keys.sort();
+  var labels = keys.map(function (k){ return monthLabel(k + '-01'); });
+  var sets = LOTS.map(function (spec){
+    var exps = [];
+    var data = keys.map(function (k){
+      var hit = null;
+      REAL.rows.forEach(function (r){ if (r.code === spec.code && r.expiry.slice(0, 7) === k) hit = r; });
+      exps.push(hit ? hit.expiry : '');
+      return hit ? Math.round(hit.pg * 100) / 100 : null;
+    });
+    return { label:spec.code, data:data, _exp:exps, borderColor:PALETTE[spec.code], backgroundColor:PALETTE[spec.code],
+      borderWidth:spec.code === 'GOLDM' ? 2.2 : 1.7, borderDash:DASHES[spec.code], pointRadius:3, pointHoverRadius:5, tension:.2, spanGaps:true };
+  });
+  var o = baseOptions();
+  o.scales.x.ticks.maxTicksLimit = 12;
+  o.plugins.tooltip.callbacks.label = function (c){
+    var e = c.dataset._exp && c.dataset._exp[c.dataIndex];
+    return ' ' + c.dataset.label + ': ' + rupee(c.parsed.y, 1) + ' / g' + (e ? ' · expires ' + fmtLongDate(e) : '');
+  };
+  o.scales.y.ticks.callback = function (v){ return '\u20b9' + num(v, 0); };
+  o.scales.y.title = { display:true, text:'\u20b9 per gram, 999 purity basis', color:'#6f6f6f', font:chartFont() };
+  if (GS.state.charts.snap){ try { GS.state.charts.snap.destroy(); } catch (e){} }
+  GS.state.charts.snap = new Chart($('#chartSnap'), { type:'line', data:{ labels:labels, datasets:sets }, options:o });
+  $('#snapLegend').innerHTML = LOTS.map(function (spec){
+    return '<span><i style="background:' + PALETTE[spec.code] + '"></i>' + spec.code + ' (quoted per ' + spec.quote + ' g, ' + spec.purity + ')</span>';
+  }).join('');
+}
+
 document.addEventListener('DOMContentLoaded', boot);
 
 
 </script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
