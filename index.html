@@ -357,6 +357,54 @@ tbody tr:hover{background:#1a1a1a}
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important}
 }
+
+/* ============================================================
+   GoldSpread · Part C — demo account, assistant, reviews, 10-year analysis
+   (added on top of the existing terminal theme; nothing above is modified)
+   ============================================================ */
+.hidden{display:none !important}
+.tabbar{display:flex; gap:6px; flex-wrap:wrap; align-items:center; padding:10px 22px 0; background:linear-gradient(180deg,#0d0d0d,#0a0a0a); border-bottom:1px solid var(--line)}
+.tabbtn{font:600 12.4px var(--sans); letter-spacing:.05em; text-transform:uppercase; color:var(--dim); background:#131313; border:1px solid var(--line); border-bottom:none; padding:9px 14px; border-radius:9px 9px 0 0; cursor:pointer; transition:.15s}
+.tabbtn:hover{color:var(--text); border-color:#3a3a3a}
+.tabbtn.active{color:#0a0a0a; background:linear-gradient(180deg,var(--gold),var(--gold2)); border-color:#ffd24d}
+#tab-analysis,#tab-demo,#tab-reviews,#tab-assistant{display:block; max-width:1240px; margin:0 auto; padding:18px 22px 46px}
+.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px}
+.divider{height:1px; background:var(--line); margin:12px 0}
+.tiny{font-size:12.4px; color:var(--dim); line-height:1.6}
+.srcbox a{color:var(--gold); text-decoration:none; border-bottom:1px dotted #6b5508}
+.srcbox a:hover{color:#ffd54a}
+.input,select.input{width:100%; background:#101010; color:var(--text); border:1px solid var(--line); border-radius:9px; padding:10px 11px; font:14px var(--sans); margin:4px 0 10px}
+.input:focus{outline:none; border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-glow)}
+textarea.input{min-height:88px; resize:vertical; font-family:var(--sans)}
+label.fl{display:block; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim2); font-weight:600; margin-top:8px}
+.demo-bal{font-family:var(--mono); font-size:34px; font-weight:800; color:var(--gold); line-height:1.1}
+.pos-pos{color:var(--green)}
+.pos-neg{color:var(--red)}
+.stars{color:var(--gold); letter-spacing:2px; font-size:15px}
+.review{border:1px solid var(--line); border-radius:var(--r); padding:12px 13px; background:var(--card2); margin-bottom:10px}
+.review .rv-head{display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:5px; flex-wrap:wrap}
+.review .rv-by{font-weight:700; color:#dcdcdc; font-size:13.4px}
+.modrow{border-left:3px solid var(--red); background:#1a1010; padding:9px 11px; border-radius:8px; font-size:13px; margin-bottom:8px; color:#e2c9c9}
+.modrow b{color:#ff9b9b}
+.tagv{font-size:10.4px; letter-spacing:.09em; text-transform:uppercase; padding:3px 7px; border-radius:6px; border:1px solid #2f5c33; color:#7ede8a; background:#0f1c11; font-weight:700}
+.tagu{font-size:10.4px; letter-spacing:.09em; text-transform:uppercase; padding:3px 7px; border-radius:6px; border:1px solid #5c2f2f; color:#ff9b9b; background:#1c0f0f; font-weight:700}
+.msg{max-width:86%; padding:10px 13px; border-radius:13px; font-size:13.9px; line-height:1.62; border:1px solid var(--line); margin-bottom:9px}
+.msg.me{margin-left:auto; background:#1e1a0c; border-color:#4a3d0b}
+.msg.bot{background:var(--card2); color:#dcdcdc}
+.chips{display:flex; gap:7px; flex-wrap:wrap}
+.chip{font-size:12.2px; padding:6px 11px; border:1px solid var(--line); border-radius:999px; background:#141414; color:var(--dim); cursor:pointer; transition:.15s}
+.chip:hover{border-color:var(--gold); color:var(--gold)}
+.chipx{display:inline-block; font-size:12px; padding:3px 9px; border:1px solid var(--line); border-radius:999px; background:#141414; color:var(--gold); margin:2px 3px 0 0}
+.legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; font-size:12.2px; color:var(--dim)}
+.legend span{display:flex; align-items:center; gap:6px}
+.legend i{width:11px; height:11px; border-radius:3px; display:inline-block}
+.demo-promo{margin-top:12px; padding:11px 12px; border:1px solid var(--line); border-radius:var(--r); background:#131313; font-size:12.9px; color:var(--dim); line-height:1.6}
+.wel-num{font-family:var(--mono); font-size:46px; font-weight:800; color:var(--gold); letter-spacing:-1px; line-height:1.05; margin:6px 0 2px}
+.notv{color:#ff9b9b; font-size:11.6px; font-weight:600}
+.hbar{height:7px; border-radius:5px; background:#1f1f1f; overflow:hidden; margin-top:4px}
+.hbar i{display:block; height:100%; background:linear-gradient(90deg,var(--gold-dim),var(--gold))}
+@media (max-width:760px){ .tabbar{padding:9px 12px 0} .tabbtn{font-size:11.2px; padding:8px 10px} #tab-analysis,#tab-demo,#tab-reviews,#tab-assistant{padding:14px 13px 40px} .msg{max-width:100%} }
+
 </style>
 </head>
 <body>
@@ -416,6 +464,8 @@ tbody tr:hover{background:#1a1a1a}
           </label>
           <button class="btn btn-gold btn-block" type="submit" id="liSubmit">Sign in to dashboard</button>
           <div class="form-foot">No account yet? <a href="#/login" data-tab-jump="signup">Create one</a> · <a href="#/terms">Terms &amp; Conditions</a></div>
+          <div class="demo-promo"><b class="gold">Free demo account &middot; $100.00 in virtual credits</b><br>Sign in and you can both read the desk and try it: a paper-trading wallet is credited with <b>$100.00</b> the moment you log in. No email confirmation, no KYC, no demat account and no real money &mdash; positions are marked against the real MCX per-gram snapshot in <span class="mono">data.json</span>.</div>
+          <button class="btn btn-ghost btn-block" id="instantDemo" type="button" style="margin-top:10px">&#9889; Instant demo &mdash; skip the form</button>
         </form>
 
         <!-- SIGNUP FORM -->
@@ -513,7 +563,16 @@ tbody tr:hover{background:#1a1a1a}
     <div class="ticker-track" id="tickerTrack"></div>
   </div>
 
-  <div class="wrap">
+
+  <nav class="tabbar" aria-label="Desk sections">
+    <button class="tabbtn active" type="button" data-tab="desk">Spread desk</button>
+    <button class="tabbtn" type="button" data-tab="analysis">10-year analysis</button>
+    <button class="tabbtn" type="button" data-tab="demo">$100 demo account</button>
+    <button class="tabbtn" type="button" data-tab="reviews">Reviews</button>
+    <button class="tabbtn" type="button" data-tab="assistant">AI assistant</button>
+    <span class="badge" id="liveStamp" style="margin-left:auto">waiting for data.json</span>
+  </nav>
+  <div class="wrap" id="tab-desk">
     <div class="card" style="margin-bottom:16px">
       <div class="card-head">
         <div>
@@ -721,6 +780,236 @@ tbody tr:hover{background:#1a1a1a}
       <p style="margin-bottom:0">Data model: MCX public daily Bhavcopy (key-free) · Contracts: GOLDM (100 g, 995), GOLDTEN (10 g, 999), GOLDGUINEA (8 g, 999), GOLDPETAL (1 g, 999) · <a href="#/terms">Terms &amp; Conditions</a> · <button class="btn btn-ghost btn-sm" type="button" data-open-security="1">Security details</button></p>
     </div>
   </div>
+
+  <!-- ============ 10-YEAR ANALYSIS ============ -->
+  <div class="wrap hidden" id="tab-analysis">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <div>
+          <div class="eyebrow">10-year analysis &middot; published data only</div>
+          <h1 class="section-title" style="font-size:22px;margin-top:4px">Gold, silver and crude &mdash; ten full years, every figure sourced</h1>
+          <small>Annual averages from published references. No simulated series, no random numbers, nothing back-filled.</small>
+        </div>
+        <div class="row"><span class="badge badge-green">Real, cited</span><span class="badge badge-sample">Annual averages</span></div>
+      </div>
+      <p style="margin:0;color:#a5a5a5;font-size:13.8px;max-width:104ch">
+        This panel joins two real things: the published annual averages below, and the live MCX per-gram snapshot the desk loads from
+        <span class="mono">data.json</span>. The join happens in your browser. Every derived figure (&Delta;% year-on-year, CAGR) is computed from the two
+        cited endpoints and is labelled <b class="gold">computed</b> &mdash; never presented as published data, and never invented.
+      </p>
+    </div>
+
+    <div class="kpi-row" id="ancRow"></div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <div>
+          <h2 class="section-title">Annual averages &mdash; 2015 to 2024 (ten consecutive years)</h2>
+          <small>Gold &nbsp;&#8377; per 10 g (24K, domestic annual average) &middot; Silver &#8377; per kg (annual average) &middot; WTI US$ per barrel (EIA annual average)</small>
+        </div>
+        <div class="row"><span class="badge badge-green">2015&#8211;2024 complete</span></div>
+      </div>
+      <div class="table-scroll">
+        <table class="cmp">
+          <thead><tr><th>Year</th><th>Gold &#8377; / 10 g</th><th>&Delta; YoY</th><th>Silver &#8377; / kg</th><th>&Delta; YoY</th><th>WTI US$ / bbl</th><th>&Delta; YoY</th></tr></thead>
+          <tbody id="histTable"></tbody>
+        </table>
+      </div>
+      <p class="tiny" id="histFoot"></p>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3 class="section-title" style="font-size:15px">Domestic metals &mdash; gold &#8377;/10 g &amp; silver &#8377;/kg</h3>
+        <canvas id="chHistMetal" height="212"></canvas>
+        <div class="legend" id="lgdMetal"></div>
+        <p class="tiny" style="margin-bottom:0">Left axis: gold. Right axis: silver.</p>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="font-size:15px">Crude oil &mdash; WTI US$ per barrel</h3>
+        <canvas id="chHistWti" height="212"></canvas>
+        <div class="legend" id="lgdWti"></div>
+        <p class="tiny" style="margin-bottom:0">2015&#8211;2025 shown because the EIA annual series publishes 2025; 2020 shows the pandemic collapse.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><div><h2 class="section-title">Where today's real snapshot sits against history</h2><small>Live MCX per-gram close joined to the cited 2015 and 2024 annual averages</small></div></div>
+      <div id="ancCalc"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><div><h2 class="section-title">Extended years &amp; international reference</h2><small>Only years with a published figure appear. Anything unverified is marked as such.</small></div></div>
+      <div id="extTable"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><div><h2 class="section-title">Sources &mdash; click through and check every number</h2><small>Each series carries its own citation, shown in full below</small></div></div>
+      <div class="srcbox" id="srcList"></div>
+      <div class="divider"></div>
+      <p class="tiny" style="margin-bottom:0">
+        <b>Honest limits of this page.</b> (1) <span class="mono">data.json</span> in this repo holds real MCX contract rows for a single session
+        (01 Oct 2026 &mdash; GOLDM, GOLDTEN, GOLDGUINEA, GOLDPETAL). There is therefore <b>no real contract-level year series in this repository</b>, and none
+        is fabricated: the historic columns are published <i>metal-price</i> annual averages, which is a different instrument basis and is labelled as such.
+        (2) Where a year's annual average was not published when this file was built, the cell reads <b>not verified</b> instead of a guess.
+        (3) RBI financial-year averages and international USD spot averages are different bases; the international strip is kept separate, and fiscal-year
+        figures are deliberately excluded rather than mixed in.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ $100 DEMO ACCOUNT ============ -->
+  <div class="wrap hidden" id="tab-demo">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <div>
+          <div class="eyebrow">Free demo account</div>
+          <h2 class="section-title">$100.00 in virtual credits &mdash; funded the moment you logged in</h2>
+          <small>Paper trading against the real MCX per-gram snapshot. No real money, no order routing, no demat account, nothing leaves this browser.</small>
+        </div>
+        <div class="row">
+          <span class="badge badge-green" id="dmAcct">demo</span>
+          <button class="btn btn-ghost btn-sm" type="button" id="dmWelcomeAgain">Show the $100 card again</button>
+        </div>
+      </div>
+      <div class="kpi-row" id="dmKpis"></div>
+      <p class="tiny" style="margin:0">Mark prices come from <span class="mono">data.json</span> (the real MCX close of the date stamped in the tab bar) and are
+      converted with the USD/INR reference in the sources list. Sizes are quoted in <b>999-equivalent grams</b>, using each contract's own purity-adjusted
+      per-gram price &mdash; the same normalisation the desk uses.</p>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3 class="section-title" style="font-size:15px">Place a paper order</h3>
+        <label class="fl" for="dmCode">Contract</label>
+        <select class="input" id="dmCode"></select>
+        <label class="fl" for="dmGrams">Size &mdash; grams of 999-equivalent gold</label>
+        <input class="input" id="dmGrams" type="number" min="0.01" step="0.01" value="0.05" />
+        <div class="row" style="margin-top:4px">
+          <button class="btn btn-gold" type="button" id="dmBuy">Buy</button>
+          <button class="btn" type="button" id="dmSell">Sell / close</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="dmHalf">Half size</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="dmReset">Reset demo</button>
+        </div>
+        <div class="tiny" id="dmMsg" style="margin-top:10px;min-height:34px"></div>
+        <div class="divider"></div>
+        <div id="dmPx" class="tiny"></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="font-size:15px">Open positions</h3>
+        <div class="table-scroll">
+          <table class="cmp">
+            <thead><tr><th>Contract</th><th>Grams</th><th>Avg cost $/g</th><th>Mark $/g</th><th>Value $</th><th>Unrealised</th></tr></thead>
+            <tbody id="posTable"></tbody>
+          </table>
+        </div>
+        <p class="tiny" style="margin-bottom:0" id="posHint"></p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><div><h2 class="section-title">Blotter &mdash; every paper fill</h2><small>Most recent first, stored in this browser only</small></div><span class="badge" id="dmCount">0 fills</span></div>
+      <div class="table-scroll">
+        <table class="cmp">
+          <thead><tr><th>Time</th><th>Side</th><th>Contract</th><th>Grams</th><th>&#8377; / g (999)</th><th>$ total</th><th>Realised</th><th>Cash after</th></tr></thead>
+          <tbody id="tradeRows"></tbody>
+        </table>
+      </div>
+      <p class="tiny" style="margin-bottom:0">The snapshot is one real session, not a streaming feed, so marks do not tick between fills. Nothing here is advice, an
+      order, a brokerage service, or a route to a demat account.</p>
+    </div>
+  </div>
+
+  <!-- ============ REVIEWS ============ -->
+  <div class="wrap hidden" id="tab-reviews">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head"><div><div class="eyebrow">Community</div><h2 class="section-title">Leave a review</h2><small>Posted instantly if it clears the filter; removed instantly if it does not</small></div></div>
+        <label class="fl" for="rvName">Name</label>
+        <input class="input" id="rvName" type="text" maxlength="40" placeholder="How should it be signed?" />
+        <label class="fl" for="rvRating">Rating</label>
+        <select class="input" id="rvRating">
+          <option value="5">5 &mdash; excellent</option><option value="4">4 &mdash; good</option>
+          <option value="3" selected>3 &mdash; fair</option><option value="2">2 &mdash; poor</option><option value="1">1 &mdash; bad</option>
+        </select>
+        <label class="fl" for="rvText">Review</label>
+        <textarea class="input" id="rvText" maxlength="600" placeholder="What worked, what did not, what you would change. Minimum 15 characters."></textarea>
+        <div class="row">
+          <button class="btn btn-gold" type="button" id="rvPost">Post review</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="rvTest">Test the fake-comment filter</button>
+        </div>
+        <div class="tiny" id="rvMsg" style="margin-top:10px;min-height:30px"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2 class="section-title">The wall</h2><small id="rvCount">no reviews yet</small></div><span class="badge badge-green" id="rvAvg">&#8212;</span></div>
+        <div id="rvList"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-head"><div><h2 class="section-title">Auto-moderation log &mdash; what the filter caught</h2><small>Blocked text is kept here for transparency, never shown on the wall</small></div><span class="badge badge-sample" id="modCount">0 blocked</span></div>
+      <div id="modLog"></div>
+      <div class="divider"></div>
+      <div class="grid2">
+        <div>
+          <p class="tiny" style="margin-bottom:6px"><b class="gold">Signals scored on every submission</b></p>
+          <p class="tiny" style="margin:0">
+            1. too short (under 15 characters) &middot; 2. any link or contact handle &middot; 3. all-caps shouting &middot; 4. gibberish / no vowel structure &middot;
+            5. character run-on (<span class="mono">aaaaa</span>) &middot; 6. repeated-word template spam &middot; 7. profanity &middot; 8. duplicate of an existing review &middot;
+            9. burst posting (same browser, inside 20 s) &middot; 10. suspicious author name.
+          </p>
+        </div>
+        <div>
+          <p class="tiny" style="margin-bottom:6px"><b class="gold">What this actually is</b></p>
+          <p class="tiny" style="margin:0">A <b>heuristic rule engine</b> that runs locally in your browser &mdash; not a trained model, not a hosted classifier, and not
+          guaranteed to catch every fake comment or to spare every genuine one. It flags, removes and logs; it does not score sentiment or judge the opinion.
+          A false positive costs the author their text until they rephrase, so every block states its reason.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ AI ASSISTANT ============ -->
+  <div class="wrap hidden" id="tab-assistant">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <div><div class="eyebrow">Scoped assistant &middot; real time</div><h2 class="section-title">Ask about this desk &mdash; and only this desk</h2>
+        <small>Reads the loaded <span class="mono">data.json</span> snapshot, this site's own controls, the review wall and the cited 10-year series the moment you ask.</small></div>
+        <div class="row"><span class="badge badge-green" id="ctxStamp">&#8212;</span><span class="badge badge-sample">no external API</span></div>
+      </div>
+      <p class="tiny" style="margin:0">By design the assistant runs <b>entirely in your browser against this page's own data</b>: it has no internet access, no API key and no
+      memory of anything else, and it refuses anything outside MCX gold cross-contract data, this dashboard, the demo account and the review system. That is a
+      deliberate limit, not a missing feature &mdash; it means every answer it gives is traceable to the numbers on this page.</p>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div id="chatLog" style="max-height:520px;overflow-y:auto;padding-right:4px"></div>
+        <div class="row" style="margin-top:12px">
+          <input class="input" id="chatIn" type="text" style="margin:0;flex:1" placeholder="e.g. what is the gold price right now?" />
+          <button class="btn btn-gold" type="button" id="chatSend">Ask</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="chatClear">Clear</button>
+        </div>
+        <div class="chips" style="margin-top:10px" id="chatChips"></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="font-size:15px">In scope</h3>
+        <p class="tiny">
+          &bull; the live per-gram snapshot for GOLDM, GOLDTEN, GOLDGUINEA, GOLDPETAL, with expiries and liquidity<br>
+          &bull; spreads in basis points versus the reference contract, and the cost hurdle<br>
+          &bull; purity normalisation (995 vs 999) and why per-gram is the only comparable basis<br>
+          &bull; the $100 demo account and how to place a paper order<br>
+          &bull; the review wall and every signal the fake-comment filter scores<br>
+          &bull; the cited ten-year series, the CAGR between two sourced endpoints, and the sources themselves
+        </p>
+        <div class="divider"></div>
+        <h3 class="section-title" style="font-size:15px">Out of scope &mdash; it will say so</h3>
+        <p class="tiny" style="margin-bottom:0">Anything unrelated to this site: other markets, politics, coding help, general knowledge, personal advice, price
+        predictions, or "will gold go up tomorrow". It answers with a refusal and lists what it can do instead. It never invents a number and never
+        forecasts.</p>
+      </div>
+    </div>
+  </div>
 </section>
 </main>
 <!-- ============ SECURITY MODAL ============ -->
@@ -739,6 +1028,25 @@ tbody tr:hover{background:#1a1a1a}
     <div class="divider"></div>
     <p><b style="color:#ffb3b3">What this is not.</b> There is no backend. This is a front-end demonstration with demo authentication stored locally — it is <b>not</b> end-to-end encrypted, <b>not</b> bank-grade, <b>not</b> audited, and <b>not</b> a substitute for a real identity or account system. Anyone with access to this unlocked device and its browser storage could read or modify what is stored there. Do not enter a password you use anywhere else.</p>
     <div class="row" style="margin-top:14px"><button class="btn btn-gold" type="button" id="secOk">Understood</button></div>
+  </div>
+</div>
+
+
+<!-- ============ $100 WELCOME MODAL ============ -->
+<div class="modal-back hidden" id="welcomeModal" role="dialog" aria-modal="true" aria-labelledby="wmTitle">
+  <div class="modal" style="max-width:520px;text-align:center">
+    <div class="eyebrow">Free demo account &middot; welcome bonus</div>
+    <div class="wel-num">$100.00</div>
+    <h3 id="wmTitle" style="margin:2px 0 10px">Demo credits received</h3>
+    <p style="color:#c9c9c9"><b class="gold">$100.00 in virtual credits has been added to your demo wallet</b> just for signing in. Nothing was charged,
+    nothing is real money, and no demat or trading account exists behind it.</p>
+    <p class="tiny">Use it to paper-trade 999-equivalent gold grams at the real MCX per-gram snapshot the desk has loaded from
+    <span class="mono">data.json</span>. Positions are marked against that same snapshot, and you can reset the wallet whenever you like.</p>
+    <div class="row" style="justify-content:center;margin-top:14px">
+      <button class="btn btn-gold" type="button" id="wmGo">Start paper trading</button>
+      <button class="btn btn-ghost" type="button" id="wmClose">Just explore the desk</button>
+    </div>
+    <p class="tiny" style="margin:12px 0 0">Analytics and education only &mdash; not investment advice, not a broker, not a demat provider.</p>
   </div>
 </div>
 
@@ -2002,5 +2310,706 @@ document.addEventListener('DOMContentLoaded', boot);
 
 
 </script>
+
+<script>
+/* ============================================================
+   GoldSpread · Part C — demo account + $100 credit, paper trading,
+   scoped in-browser assistant, review auto-moderation, sourced 10-year analysis.
+   Self-contained: it reads the Part A/B globals (REAL, LOTS, GS, snapshotRows)
+   defensively and never modifies the existing dashboard logic.
+   ============================================================ */
+(function(){
+'use strict';
+if (window.__GS_PART_C__) return;
+window.__GS_PART_C__ = true;
+
+/* ---------- tiny local helpers (no dependency on Part A) ---------- */
+function q(s, r){ return (r || document).querySelector(s); }
+function qa(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+  return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]; }); }
+function en(n, d){ if (n == null || !isFinite(n)) return '\u2014'; d = (d == null ? 2 : d);
+  return Number(n).toLocaleString('en-IN', { minimumFractionDigits:d, maximumFractionDigits:d }); }
+function sg(n, d){ if (n == null || !isFinite(n)) return '\u2014'; d = (d == null ? 2 : d);
+  return (n >= 0 ? '+' : '\u2212') + en(Math.abs(n), d); }
+function pc(n, d){ return (n == null || !isFinite(n)) ? '\u2014' : sg(n, d) + '%'; }
+function usd(n, d){ return '$' + en(n, d == null ? 2 : d); }
+function cls(n){ return n > 0 ? 'pos-pos' : (n < 0 ? 'pos-neg' : ''); }
+function kpi(label, val, sub){ return '<div class="kpi"><div class="k-label">' + label + '</div><div class="k-val">' + val +
+  '</div><div class="k-sub">' + (sub || '') + '</div></div>'; }
+
+/* USD per INR reference used only to size the demo wallet — published, cited in the sources list */
+var FX = 95.55;
+
+/* ---------- live real data ---------- */
+function rows(){ try { return (window.REAL && REAL.rows && REAL.rows.length) ? REAL.rows : []; } catch(e){ return []; } }
+function lotSpecs(){ try { return window.LOTS || []; } catch(e){ return []; } }
+function liveDate(){ try { return (window.REAL && REAL.date) || ''; } catch(e){ return ''; } }
+function fmtLong(iso){
+  if (!iso) return '\u2014';
+  try { if (typeof window.fmtLongDate === 'function') return window.fmtLongDate(iso); } catch(e){}
+  var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], d = new Date(iso + 'T00:00:00');
+  return d.getDate() + ' ' + m[d.getMonth()] + ' ' + d.getFullYear();
+}
+function deepRow(code){                      /* the contract with the deepest book */
+  var r = rows().filter(function(x){ return x.code === code; });
+  if (!r.length) return null;
+  var withVol = r.filter(function(x){ return x.vol != null && isFinite(x.vol) && x.vol > 0; });
+  var pool = withVol.length ? withVol : r;
+  pool.sort(function(a, b){ return (b.vol || 0) - (a.vol || 0) || (a.expiry < b.expiry ? -1 : 1); });
+  return pool[0];
+}
+function pxInr(code){ var d = deepRow(code); return d ? d.pg : null; }     /* ₹ per 999-purity gram */
+function pxUsd(code){ var p = pxInr(code); return p ? p / FX : null; }
+function refCode(){ try { return (window.GS && GS.state && GS.state.ref) || 'GOLDPETAL'; } catch(e){ return 'GOLDPETAL'; } }
+function costBps(){ try { return (window.GS && GS.state && GS.state.cost) || 25; } catch(e){ return 25; } }
+function nick(){ try { var c = window.GS && GS.session && GS.session.current; return (c && (c.name || c.email)) || 'Trader'; } catch(e){ return 'Trader'; } }
+function who(){ try { var c = window.GS && GS.session && GS.session.current; return (c && (c.email || c.name)) || ''; } catch(e){ return ''; } }
+
+/* ---------- browser storage ---------- */
+var KS = { A:'gs_demo_acct_v2', T:'gs_demo_trades_v2', W:'gs_demo_welcomed_v2',
+           R:'gs_reviews_v2', M:'gs_modlog_v2', C:'gs_chat_v2', L:'gs_review_last_v2' };
+function get(k, d){ try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } }
+function put(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ return false; } }
+function scope(k){ return k + '::' + (who() || 'guest'); }
+
+/* ============================================================
+   A. 10-YEAR SERIES — published annual averages only.
+   Every value below was retrieved from the cited source; nothing here
+   is simulated, interpolated or guessed. Years that were not published
+   at build time are simply absent and rendered as "not verified".
+   ============================================================ */
+var HIST = [
+  { k:'gold', name:'Gold', unit:'\u20b9 per 10 g \u00b7 24K domestic annual average', c:'#FFC107',
+    s:[ { t:'BankBazaar — Historical Gold Rate Trend in India (annual average, 24K, \u20b9/10 g)',
+          u:'https://www.bankbazaar.com/gold-rate/gold-rate-trend-in-india.html' },
+        { t:'MMTC-PAMP — Historical Gold Rates in India 1964\u20132026 (same annual series)',
+          u:'https://www.mmtcpamp.com/blog/blog-detail/historical-gold-rates-trend-in-india' } ],
+    v:[[2015,26343.50],[2016,28623.50],[2017,29667.50],[2018,31438],[2019,35220],
+       [2020,48651],[2021,48720],[2022,52670],[2023,65330],[2024,77913]] },
+  { k:'silver', name:'Silver', unit:'\u20b9 per kg \u00b7 annual average', c:'#9fd3ff',
+    s:[ { t:'BankBazaar — Historical Silver Price Trend in India (annual average, \u20b9/kg)',
+          u:'https://www.bankbazaar.com/silver-rate/silver-price-trend-in-india.html' } ],
+    v:[[2015,37825],[2016,36990],[2017,37825],[2018,41400],[2019,40600],
+       [2020,63435],[2021,62572],[2022,55100],[2023,78600],[2024,95700]] },
+  { k:'wti', name:'WTI crude', unit:'US$ per barrel \u00b7 Cushing WTI annual average', c:'#ff9d6b',
+    s:[ { t:'U.S. Energy Information Administration — Cushing, OK WTI Spot Price FOB, annual series',
+          u:'https://www.eia.gov/dnav/pet/hist/rwtca.htm' } ],
+    v:[[2015,48.66],[2016,43.29],[2017,50.80],[2018,65.23],[2019,56.99],[2020,39.16],
+       [2021,68.13],[2022,94.90],[2023,77.58],[2024,76.63],[2025,65.39]] }
+];
+var INTL = [
+  { k:'Gold (international)', unit:'US$ per troy ounce \u00b7 annual average', u:'https://www.macrotrends.net/1333/historical-gold-prices-100-year-chart',
+    v:[[2023,1953.69],[2024,2404.58],[2025,3472.54]], note:'only 2023\u20132025 were confirmed as published annual averages at build time' },
+  { k:'Silver (international)', unit:'US$ per troy ounce \u00b7 annual average', u:'https://www.macrotrends.net/1470/historical-silver-prices-100-year-chart',
+    v:[[2021,24.97],[2022,21.67],[2023,23.58],[2024,28.13],[2025,41.50]], note:'2021\u20132025 confirmed; earlier years not confirmed and therefore not shown' }
+];
+var FX_SRC = { t:'Macrotrends — Indian Rupees to USD exchange rate (US$1 = \u20b995.55, 11 Sep 2026), used only to size the demo wallet',
+               u:'https://www.macrotrends.net/3545/indian-rupees-to-usd-exchange-rate' };
+
+function ser(k){ for (var i = 0; i < HIST.length; i++) if (HIST[i].k === k) return HIST[i]; return null; }
+function valAt(s, y){ for (var i = 0; i < s.v.length; i++) if (s.v[i][0] === y) return s.v[i][1]; return null; }
+function years(s){ return s.v.map(function(p){ return p[0]; }); }
+
+/* ============================================================
+   B. Tab routing
+   ============================================================ */
+var ACTIVE = 'desk', CH = { metal:null, wti:null }, LAST_SIG = '';
+function setTab(t){
+  ACTIVE = t;
+  var map = { desk:'tab-desk', analysis:'tab-analysis', demo:'tab-demo', reviews:'tab-reviews', assistant:'tab-assistant' };
+  Object.keys(map).forEach(function(k){ var el = q('#' + map[k]); if (el) el.classList.toggle('hidden', k !== t); });
+  qa('.tabbtn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-tab') === t); });
+  if (t === 'analysis') renderAnalysis();
+  if (t === 'demo'){ ensureAcct(); renderDemo(); }
+  if (t === 'reviews') renderReviews();
+  if (t === 'assistant'){ stampCtx(); renderChat(); if (q('#chatIn')) q('#chatIn').focus(); }
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   C. Demo account — $100 credited on first login
+   ============================================================ */
+var A = { cash:100, pos:{} };
+function loadAcct(){ var a = get(scope(KS.A), null); A = (a && typeof a.cash === 'number') ? a : { cash:100, pos:{} }; }
+function saveAcct(){ put(scope(KS.A), A); }
+function blotter(){ return get(scope(KS.T), []); }
+function addFill(f){ var l = blotter(); l.unshift(f); put(scope(KS.T), l.slice(0, 80)); }
+function ensureAcct(){
+  if (!who()) return;                       /* nothing to bind to before login */
+  var k = scope(KS.A), existing = get(k, null);
+  if (existing == null){ A = { cash:100, pos:{} }; saveAcct(); showWelcome(); return; }
+  loadAcct();
+}
+function equity(){
+  var v = A.cash;
+  Object.keys(A.pos).forEach(function(c){ var p = pxUsd(c); if (p) v += A.pos[c].g * p; });
+  return v;
+}
+function posValue(){ var v = 0; Object.keys(A.pos).forEach(function(c){ var p = pxUsd(c); if (p) v += A.pos[c].g * p; }); return v; }
+function say(msg, kind){
+  var el = q('#dmMsg'); if (!el) return;
+  el.innerHTML = '<span style="color:' + (kind === 'err' ? '#ff9b9b' : (kind === 'ok' ? '#7ede8a' : '#8f8f8f')) + '">' + msg + '</span>';
+}
+function renderDemo(){
+  if (!q('#dmKpis')) return;
+  var eq = equity(), pnl = eq - 100, hold = posValue();
+  var n = Object.keys(A.pos).length;
+  q('#dmKpis').innerHTML =
+    kpi('Virtual cash', usd(A.cash), 'from the $100.00 credited at first login') +
+    kpi('Positions at mark', usd(hold), n + ' contract' + (n === 1 ? '' : 's') + ' open') +
+    kpi('Equity', usd(eq), 'cash + mark-to-market') +
+    kpi('P&amp;L on the $100', '<span class="' + cls(pnl) + '">' + sg(pnl, 2) + '</span>', pc(pnl / 100 * 100) + ' of the credited wallet');
+  q('#dmAcct').textContent = who() ? ('demo · ' + (who().split('@')[0] || 'trader')) : 'demo';
+
+  /* contract picker */
+  var sel = q('#dmCode');
+  if (sel && sel.options.length !== lotSpecs().length){
+    sel.innerHTML = lotSpecs().map(function(L){ return '<option value="' + L.code + '">' + L.code + ' \u2014 ' + L.label + '</option>'; }).join('');
+    if (!sel.value) sel.value = 'GOLDPETAL';
+  }
+
+  /* price strip */
+  var strip = lotSpecs().map(function(L){
+    var d = deepRow(L.code);
+    if (!d) return '<div>' + esc(L.code) + ': \u2014</div>';
+    return '<div>\u00b7 <b>' + esc(L.code) + '</b> \u20b9' + en(d.pg, 1) + '/g (999) \u00b7 ' + usd(d.pg / FX, 2) + '/g \u00b7 ' +
+      esc(L.purity) + ' purity \u00b7 expires ' + esc(fmtLong(d.expiry)) + (d.vol != null ? ' \u00b7 ' + en(d.vol, 0) + ' lots' : '') + '</div>';
+  }).join('');
+  q('#dmPx').innerHTML = '<b class="gold">Mark prices \u00b7 close of ' + esc(fmtLong(liveDate())) + '</b>' +
+    (strip || 'Live snapshot not loaded \u2014 waiting on data.json.') +
+    '<div style="margin-top:6px">USD/INR reference \u20b9' + en(FX, 2) + ' per $1 (' +
+    '<a href="' + FX_SRC.u + '" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">' + esc(FX_SRC.t.split('\u2014')[0].trim()) + '</a>).</div>';
+
+  /* positions */
+  var pt = q('#posTable');
+  if (pt){
+    var keys = Object.keys(A.pos);
+    if (!keys.length) pt.innerHTML = '<tr><td colspan="6" style="color:#8f8f8f">Flat \u2014 no open paper positions. Your $100.00 is untouched.</td></tr>';
+    else pt.innerHTML = keys.map(function(c){
+      var p = pxUsd(c), g = A.pos[c].g, avg = A.pos[c].avg, v = p ? g * p : 0, up = p ? (p - avg) * g : 0;
+      var d = deepRow(c);
+      return '<tr><td>' + esc(c) + (d ? ' <span class="tiny">' + esc(fmtLong(d.expiry)) + '</span>' : '') + '</td>' +
+        '<td class="num">' + en(g, 3) + '</td><td class="num">' + usd(avg, 2) + '</td><td class="num">' + (p ? usd(p, 2) : '\u2014') + '</td>' +
+        '<td class="num">' + usd(v, 2) + '</td><td class="num ' + cls(up) + '">' + sg(up, 2) + '</td></tr>';
+    }).join('');
+    q('#posHint').innerHTML = 'Marked against the real per-gram snapshot, so a position can only move when <span class="mono">data.json</span> changes. ' +
+      'Unrealised P&amp;L is not a cash balance until you close the position.';
+  }
+
+  /* blotter */
+  var b = blotter(), tr = q('#tradeRows');
+  if (tr){
+    tr.innerHTML = b.length ? b.map(function(f){
+      var t = new Date(f.t);
+      return '<tr><td class="tiny">' + esc(String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0') + ':' + String(t.getSeconds()).padStart(2,'0')) + '</td>' +
+        '<td>' + (f.side === 'BUY' ? '<span class="badge badge-green">BUY</span>' : '<span class="badge badge-gold">SELL</span>') + '</td>' +
+        '<td>' + esc(f.code) + '</td><td class="num">' + en(f.g, 3) + '</td><td class="num">' + en(f.px, 1) + '</td>' +
+        '<td class="num">' + usd(f.tot, 2) + '</td><td class="num ' + cls(f.pnl == null ? 0 : f.pnl) + '">' +
+        (f.pnl == null ? '\u2014' : sg(f.pnl, 2)) + '</td><td class="num">' + usd(f.cash, 2) + '</td></tr>';
+    }).join('') : '<tr><td colspan="8" style="color:#8f8f8f">No fills yet.</td></tr>';
+  }
+  if (q('#dmCount')) q('#dmCount').textContent = b.length + ' fill' + (b.length === 1 ? '' : 's');
+}
+function order(side){
+  var code = q('#dmCode').value, g = parseFloat(q('#dmGrams').value);
+  var p = pxInr(code), u = pxUsd(code);
+  if (!p || !u){ say('The live snapshot is not loaded yet, so there is no honest mark price to fill against.', 'err'); return; }
+  if (!isFinite(g) || g <= 0){ say('Enter a size in grams \u2014 minimum 0.01 g.', 'err'); return; }
+  var d = deepRow(code) || {};
+  if (side === 'buy'){
+    var cost = g * u;
+    if (cost > A.cash + 1e-9){ say('Not enough virtual cash: that order needs ' + usd(cost) + ' and the wallet holds ' + usd(A.cash) + '.', 'err'); return; }
+    var pos = A.pos[code] || { g:0, avg:0 };
+    var ng = pos.g + g;
+    pos.avg = (pos.avg * pos.g + u * g) / ng; pos.g = ng; A.pos[code] = pos; A.cash -= cost;
+    addFill({ t:Date.now(), side:'BUY', code:code, g:g, px:p, tot:cost, cash:A.cash, exp:d.expiry ||'', pnl:null });
+    say('Paper fill \u00b7 bought ' + en(g, 3) + ' g of ' + esc(code) + ' at \u20b9' + en(p, 1) + '/g (999 basis) = ' + usd(cost) + '.', 'ok');
+  } else {
+    var pos2 = A.pos[code];
+    if (!pos2 || pos2.g <= 0){ say('There is no open ' + esc(code) + ' position to close.', 'err'); return; }
+    var sell = Math.min(g, pos2.g), proceeds = sell * u, pnl = (u - pos2.avg) * sell;
+    pos2.g -= sell; A.cash += proceeds; if (pos2.g < 1e-9) delete A.pos[code];
+    addFill({ t:Date.now(), side:'SELL', code:code, g:sell, px:p, tot:proceeds, cash:A.cash, exp:d.expiry ||'', pnl:pnl });
+    say('Paper fill \u00b7 sold ' + en(sell, 3) + ' g of ' + esc(code) + ' at \u20b9' + en(p, 1) + '/g for ' + usd(proceeds) +
+        ' \u00b7 realised ' + sg(pnl, 2) + ' on the round trip.', pnl >= 0 ? 'ok' : 'err');
+  }
+  saveAcct(); renderDemo();
+}
+
+/* ============================================================
+   D. Reviews + heuristic fake-comment removal (local, instant)
+   ============================================================ */
+var PROF = ['fuck','shit','bitch','bastard','asshole','chutiya','chutya','madarchod','bhosdi','gandu','harami','randi','bhenchod','behenchod','idiot','scamster'];
+var LINKRE = /(https?:\/\/|www\.|\.com\b|\.net\b|\.in\/|t\.me\/|bit\.ly|wa\.me|@[a-z0-9]{3,}\.[a-z]{2,})/i;
+function vowels(t){ var m = String(t).match(/[aeiouAEIOU]/g); return m ? m.length : 0; }
+function screen(text, name){
+  var t = String(text == null ? '' : text).trim(), low = t.toLowerCase(), words = t.split(/\s+/).filter(Boolean);
+  if (t.length < 15) return 'too short \u2014 under 15 characters reads as noise, not a review';
+  if (LINKRE.test(t)) return 'contains a link or contact handle \u2014 the usual fingerprint of promotional spam';
+  var letters = t.replace(/[^A-Za-z]/g, '');
+  if (letters.length > 12 && letters === letters.toUpperCase()) return 'all-caps shouting';
+  var pa = low.replace(/[^a-z]/g, '');
+  if (pa.length > 4 && vowels(t) < Math.max(2, pa.length * 0.12)) return 'no real vowel structure \u2014 reads as keyboard mash / gibberish';
+  if (/(.)\1{4,}/.test(low)) return 'character repetition \u2014 classic spam burst pattern';
+  var seen = {}, dup = 0, tot = 0;
+  words.forEach(function(w){ w = w.replace(/[^a-z0-9]/gi, '').toLowerCase(); if (w.length > 3){ tot++; if (seen[w]) dup++; seen[w] = 1; } });
+  if (tot >= 6 && dup / tot > 0.45) return 'the same words repeated through the text (template spam)';
+  for (var i = 0; i < PROF.length; i++) if (low.indexOf(PROF[i]) >= 0) return 'profanity \u2014 removed from a public review wall';
+  var list = get(KS.R, []);
+  var flat = low.replace(/\s+/g, ' ');
+  if (list.some(function(r){ return String(r.text).replace(/\s+/g, ' ').toLowerCase() === flat; })) return 'duplicate of a review already on the wall';
+  var last = get(KS.L, 0);
+  if (Date.now() - last < 20000) return 'posted within 20 s of the previous review \u2014 burst-posting guard';
+  if (name && /(\d{4,}|https?:|@)/i.test(name)) return 'suspicious author name';
+  return null;
+}
+function modLog(){
+  var m = get(KS.M, []), el = q('#modLog');
+  if (q('#modCount')) q('#modCount').textContent = m.length + ' blocked';
+  if (!el) return;
+  el.innerHTML = m.length ? m.slice(0, 12).map(function(x){
+    var d = new Date(x.t);
+    return '<div class="modrow"><b>Removed instantly</b> \u00b7 ' + esc(x.why) + '<br><span class="tiny">by ' + esc(x.by) + ' at ' +
+      esc(String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0')) + ' \u2014 text kept here, not on the wall:</span><br>' +
+      '<i style="color:#b9a3a3">\u201c' + esc(x.text) + '\u201d</i></div>';
+  }).join('') : '<p class="tiny" style="margin:0">Nothing blocked yet. Use <b>Test the fake-comment filter</b> to watch the rules fire.</p>';
+}
+function renderReviews(){
+  var list = get(KS.R, []), el = q('#rvList');
+  if (q('#rvCount')) q('#rvCount').textContent = list.length ? (list.length + ' review' + (list.length === 1 ? '' : 's') + ' \u00b7 newest first') : 'no reviews yet \u2014 be the first';
+  if (q('#rvAvg')){
+    var avg = list.length ? list.reduce(function(s, r){ return s + (r.rating || 0); }, 0) / list.length : null;
+    q('#rvAvg').textContent = avg == null ? '\u2014' : avg.toFixed(1) + ' / 5';
+  }
+  if (!el) return;
+  el.innerHTML = list.length ? list.map(function(r){
+    var d = new Date(r.t);
+    return '<div class="review"><div class="rv-head"><span class="rv-by">' + esc(r.by) + '</span><span class="stars">' +
+      '\u2605'.repeat(Math.max(0, Math.min(5, r.rating || 0))) + '\u2606'.repeat(5 - Math.max(0, Math.min(5, r.rating || 0))) +
+      '</span></div><div style="font-size:13.7px;color:#d2d2d2;line-height:1.6">' + esc(r.text) + '</div>' +
+      '<div class="tiny" style="margin-top:6px">' + esc(fmtLong(new Date(r.t).toISOString().slice(0, 10))) + '</div></div>';
+  }).join('') : '<p class="tiny" style="margin:0">No reviews yet. Text under 15 characters, links, shouting, gibberish, duplicates, burst posting and profanity are removed the moment they are submitted.</p>';
+  modLog();
+}
+function rvSay(msg, kind){
+  var el = q('#rvMsg'); if (!el) return;
+  el.innerHTML = '<span style="color:' + (kind === 'err' ? '#ff9b9b' : (kind === 'ok' ? '#7ede8a' : '#8f8f8f')) + '">' + msg + '</span>';
+}
+function postReview(){
+  var name = (q('#rvName').value || '').trim() || nick();
+  var rating = parseInt(q('#rvRating').value, 10) || 3;
+  var text = q('#rvText').value;
+  var why = screen(text, name);
+  if (why){
+    var m = get(KS.M, []); m.unshift({ t:Date.now(), by:name.slice(0, 26), text:String(text).slice(0, 200), why:why });
+    put(KS.M, m.slice(0, 24)); modLog();
+    if (typeof window.toast === 'function') window.toast('Review blocked instantly: ' + why, 'err');
+    rvSay('Blocked by the filter \u2014 ' + why + '. It is recorded in the moderation log below instead of the wall.', 'err');
+    q('#rvText').value = ''; return;
+  }
+  var list = get(KS.R, []);
+  list.unshift({ t:Date.now(), by:name, rating:rating, text:String(text).slice(0, 600) });
+  put(KS.R, list); put(KS.L, Date.now());
+  q('#rvText').value = '';
+  rvSay('Posted. It cleared every signal the filter scores.', 'ok');
+  renderReviews();
+}
+
+/* ============================================================
+   E. Scoped assistant — answers only from this site's own data
+   ============================================================ */
+function answer(txt){
+  var s = String(txt || '').trim(), l = s.toLowerCase();
+  if (!s) return { a:'Ask me about this desk \u2014 prices, spreads, costs, the demo account, reviews, or the ten-year series.' };
+  function has(){ for (var i = 0; i < arguments.length; i++) if (l.indexOf(arguments[i]) >= 0) return true; return false; }
+
+  if (has('10 year','10-year','ten year','ten-year','decade','cagr','history','historical','past year','since 2015','year wise','yearly average')) return aHist();
+  if (has('spread','basis point','bps','dislocation','arbitrage','premium','cheaper','richer')) return aSpread();
+  if (has('cost','broker','charge','hurdle','fee','gst','slippage','expensive to trade')) return aCost();
+  if (has('liquid','volume','lots','oi','open interest','thin','depth','deep')) return aLiq();
+  if (has('demo','paper','virtual','$100','100 dollar','100 credit','balance','wallet','free account')) return aDemo();
+  if (has('trade','buy','sell','order','position','gram','how do i try')) return aTrade();
+  if (has('review','rating','comment','fake','spam','moderat','filter','abuse')) return aReview();
+  if (has('purity','995','999','normalis','normaliz','per gram','per-gram','adjust','basis')) return aPurity();
+  if (has('golten','gold ten','goldm','100g','guinea','petal','spec','lot size','contract size','which contract')) return aSpec();
+  if (has('source','where did','provenance','verif','data.json','which file','dataset')) return aSource();
+  if (has('risk','advice','tip','should i','invest','recommend','guarantee','predict','forecast','tomorrow','future price')) return aRisk();
+  if (has('bhav','price','rate','kitna','kya','sasta','mehnga','close','today','now','value','how much','quote')) return aPrice();
+  if (has('hi','hello','hey','namaste','thanks','thank','thankyou')) return { a:'Namaste \u2014 I answer only about this desk. Try \u201cwhat is the gold price right now?\u201d, \u201cexplain the spread\u201d, \u201chow does the $100 demo work?\u201d or \u201cshow the ten-year analysis\u201d.' };
+  return { a:'That is outside what this page can answer. I am scoped to the MCX gold cross-contract data on this site: the live per-gram snapshot, spreads and trading costs, the $100 demo account, the review filter, and the cited ten-year series.<div style="margin-top:8px">' +
+    ['gold price today','explain the spread','cost hurdle','$100 demo account','ten-year analysis','which contracts are tracked']
+      .map(function(x){ return '<span class="chipx">' + esc(x) + '</span>'; }).join('') + '</div>' };
+}
+function aPrice(){
+  if (!rows().length) return { a:'The live snapshot is not loaded yet. It is read from <span class="mono">data.json</span> at the repo root; if that fetch fails the page falls back to the embedded Bhavcopy extract.' };
+  var out = '<b>Real MCX snapshot \u00b7 close of ' + esc(fmtLong(liveDate())) + '</b><br>Purity-adjusted, on the 999 per-gram basis:<br>';
+  lotSpecs().forEach(function(L){
+    var d = deepRow(L.code); if (!d) return;
+    out += '\u00b7 <b>' + esc(L.code) + '</b> \u2014 \u20b9' + en(d.pg, 1) + ' per gram \u00b7 \u20b9' + en(d.pg * 10, 0) + ' per 10 g \u00b7 expires ' +
+      esc(fmtLong(d.expiry)) + (d.vol != null ? ' \u00b7 ' + en(d.vol, 0) + ' lots' : ' \u00b7 volume not in this extract') + '<br>';
+  });
+  try {
+    if (typeof window.snapshotRows === 'function'){
+      var sr = window.snapshotRows(refCode(), costBps()) || [];
+      var beyond = sr.filter(function(x){ return Math.abs(x.bps) > costBps(); }).length;
+      out += '<br>Against the reference <b>' + esc(refCode()) + '</b> at a ' + costBps() + ' bps hurdle: ' + beyond + ' of ' + sr.length +
+        ' comparisons exceed it on this session. The desk stays quiet when nothing clears costs.';
+    }
+  } catch(e){}
+  return { a:out, src:['data.json'] };
+}
+function aSpread(){
+  if (!rows().length) return { a:'Load the desk first \u2014 the spread is measured on the real snapshot, and no snapshot is loaded yet.' };
+  var sr = [];
+  try { if (typeof window.snapshotRows === 'function') sr = window.snapshotRows(refCode(), costBps()) || []; } catch(e){}
+  var out = '<b>Spread explained.</b> All four contracts settle against the same metal, so GoldSpread converts each to \u20b9 per gram of 999 gold and measures ' +
+    '<span class="mono">(contract \u20b9/g \u00f7 reference \u20b9/g \u2212 1) \u00d7 10,000</span> in basis points. Positive means the contract is richer than the reference, ' +
+    'negative means cheaper. Right now the reference is <b>' + esc(refCode()) + '</b>:<br>';
+  out += sr.slice(0, 8).map(function(x){
+    return '\u00b7 ' + esc(x.code) + ' vs ' + esc(refCode()) + ' (' + esc(fmtLong(x.expiry)) + '): <b>' + sg(x.bps, 1) + ' bp</b> \u2014 ' + esc(x.verdict);
+  }).join('<br>') || '\u00b7 no comparable expiries against the chosen reference.';
+  out += '<br>Where the reference has no contract on the same date, its price is interpolated between its two nearest expiries by calendar days \u2014 that is why each row names the method it used.';
+  return { a:out, src:['data.json'] };
+}
+function aCost(){
+  return { a:'<b>The cost hurdle is ' + costBps() + ' bps round trip.</b> That covers brokerage + exchange fee + GST + stamp duty on both legs plus bid-ask ' +
+    'slippage. A raw spread is not a trade: a gap only becomes a signal when it clears this hurdle <i>and</i> both legs are liquid enough to execute. ' +
+    'Change the cost control in the signal panel and the snapshot verdicts, the cost band on the chart and my answers all move together \u2014 they read from the same state.' };
+}
+function aLiq(){
+  var out = '<b>Liquidity.</b> Each row reports the thinner leg in lots, and anything under 500 lots is treated as thin and never signalled even if the spread clears costs. ' +
+    'On the loaded session the deepest books are:<br>';
+  lotSpecs().forEach(function(L){ var d = deepRow(L.code); if (d) out += '\u00b7 ' + esc(L.code) + ' \u2014 ' + (d.vol != null ? en(d.vol, 0) + ' lots, ' + esc(fmtLong(d.expiry)) : 'volume not captured in this extract') + '<br>'; });
+  return { a:out, src:['data.json'] };
+}
+function aDemo(){
+  var eq = equity(), pnl = eq - 100;
+  return { a:'<b>Free demo account.</b> Sign in and a wallet is credited with <b>$100.00 in virtual credits</b> immediately \u2014 a popup confirms it on your first login. ' +
+    'You then paper-trade <b>999-equivalent grams</b> at the real MCX per-gram snapshot: buys spend virtual cash, sells realise P&amp;L, and the equity line marks cash plus positions. ' +
+    'Nothing is real: no money moves, no order goes anywhere, no demat account exists, and the wallet lives only in this browser. ' +
+    'Your current equity is <b>' + usd(eq) + '</b> (' + sg(pnl, 2) + ' on the credited $100). You can reset it any time from the order panel.' };
+}
+function aTrade(){
+  return { a:'<b>How to place a paper order.</b> Open the <b>$100 demo account</b> tab: pick a contract from the dropdown, type a size in grams (minimum 0.01 g), ' +
+    'then press <b>Buy</b> or <b>Sell / close</b>. Buys cost cash at the purity-adjusted per-gram mark; sells close against your average cost and post realised P&amp;L to the blotter. ' +
+    'Half-size halves the current input. The hard cap is your virtual wallet \u2014 an order larger than the cash left is rejected with the exact shortfall.' };
+}
+function aReview(){
+  var m = get(KS.M, []), r = get(KS.R, []);
+  return { a:'<b>Reviews run through a local fake-comment filter.</b> Ten signals are scored the instant you submit: too short (&lt;15 chars), any link or handle, ' +
+    'all-caps shouting, gibberish with no vowel structure, character run-ons, repeated-word template spam, profanity, duplicates of an existing review, burst posting ' +
+    'inside 20 s, and suspicious author names. A hit is removed immediately, the author is told the precise reason, and the text is kept in the moderation log rather than on the wall. ' +
+    'It is a heuristic rule engine, not a trained model \u2014 so it can miss a clever fake and can in principle block a genuine short review. ' +
+    'Currently: <b>' + r.length + '</b> live review' + (r.length === 1 ? '' : 's') + ', <b>' + m.length + '</b> blocked.' };
+}
+function aPurity(){
+  return { a:'<b>Normalisation.</b> <span class="mono">per_gram = contract_price \u00f7 grams_in_quote_unit</span>, then <span class="mono">\u00d7 (999 \u00f7 purity)</span>. ' +
+    'GOLDM quotes 995 metal, so it is scaled by 999/995 = 1.00402; GOLDTEN, GOLDGUINEA and GOLDPETAL are already 999. GOLDM and GOLDTEN are quoted per 10 g, ' +
+    'GOLDGUINEA per 8 g and GOLDPETAL per 1 g. Without this step the four prices are not comparable at all \u2014 the demo account uses the same adjusted per-gram mark.' };
+}
+function aSpec(){
+  var out = '<b>Contracts tracked on this desk:</b><br>';
+  lotSpecs().forEach(function(L){ out += '\u00b7 <b>' + esc(L.code) + '</b> \u2014 ' + esc(L.label) + ' \u00b7 quoted per ' + esc(L.quote) + ' g \u00b7 ' + esc(L.purity) + ' purity<br>'; });
+  out += 'GOLDM expires near the 5th of the month and the other three at month end, which is why the snapshot interpolates the reference price when dates do not line up.';
+  return { a:out };
+}
+function aHist(){
+  var g = ser('gold'), s = ser('silver'), w = ser('wti');
+  var out = '<b>Ten-year series \u2014 published annual averages, nothing simulated.</b><br>';
+  out += '<b>Gold \u20b9/10 g:</b> ' + g.v.map(function(p){ return p[0] + ' \u20b9' + en(p[1], 0); }).join(' \u00b7 ') + '<br>';
+  out += '<b>Silver \u20b9/kg:</b> ' + s.v.map(function(p){ return p[0] + ' \u20b9' + en(p[1], 0); }).join(' \u00b7 ') + '<br>';
+  out += '<b>WTI US$/bbl:</b> ' + w.v.map(function(p){ return p[0] + ' $' + en(p[1], 2); }).join(' \u00b7 ') + '<br>';
+  var an = anchorInfo();
+  out += '<br><b>Computed against the live snapshot</b> (' + esc(fmtLong(an.end)) + ', ' + esc(an.label) + ' = \u20b9' + en(an.live, 0) + ' per 10 g): ' +
+    'that is ' + en(an.mult, 2) + '\u00d7 the 2015 annual average of \u20b9' + en(26343.50, 0) + ', an implied CAGR of <b>' + pc(an.cagr * 100, 2) + '</b> per year ' +
+    'over ' + en(an.yrs, 2) + ' years, and ' + pc(an.yr24 * 100, 2) + ' against the 2024 annual average of \u20b9' + en(77913, 0) + '. ' +
+    'CAGR is arithmetic on those two cited endpoints, not a published figure.<br>' +
+    '<br>Sources: BankBazaar (gold, silver annual averages), U.S. EIA (WTI annual averages), MMTC-PAMP (gold cross-check). ' +
+    '2025 gold and silver annual averages were not published when this file was built, so they are marked not verified rather than filled in.';
+  return { a:out, src:[g.s[0].u, s.s[0].u, w.s[0].u] };
+}
+function aSource(){
+  var out = '<b>Where the numbers come from.</b><br>\u00b7 Live desk: <span class="mono">data.json</span> at the repo root (real MCX Bhavcopy rows), with an embedded ' +
+    'fallback extract if the fetch fails.<br>\u00b7 Ten-year analysis: published annual averages only \u2014 BankBazaar (gold \u20b9/10 g, silver \u20b9/kg), U.S. EIA (WTI US$/bbl), ' +
+    'MMTC-PAMP (gold cross-check), Macrotrends (USD/INR reference and international metals).<br>' +
+    'Every link is listed in full on the 10-year analysis tab. Nothing on this page is generated by a model.';
+  return { a:out, src:[ser('gold').s[0].u, ser('wti').s[0].u] };
+}
+function aRisk(){
+  return { a:'<b>No calls, no forecasts, no advice.</b> GoldSpread is an analytics and education tool for MCX gold futures cross-contract spreads. It does not place orders, ' +
+    'does not manage money, does not predict prices, and is not a registered research analyst service. Commodity derivatives carry a high risk of loss. ' +
+    'The $100 in the demo account is virtual \u2014 it is a teaching aid, not capital. If you want a view on direction, this page is deliberately not the tool for it.' };
+}
+function chatKey(){ return scope(KS.C); }
+function renderChat(){
+  var el = q('#chatLog'); if (!el) return;
+  var h = get(chatKey(), []);
+  if (!h.length){
+    el.innerHTML = '<div class="msg bot"><b>Namaste \u2014 I read only this site\'s data.</b><br>Ask about the live per-gram prices, the spread, the cost hurdle, ' +
+      'the $100 demo account, the review filter, or the cited ten-year series. Anything outside that gets a refusal, not a guess.<div class="chips" style="margin-top:9px">' +
+      chipHtml() + '</div></div>';
+    return;
+  }
+  el.innerHTML = h.map(function(m){
+    if (m.r === 'me') return '<div class="msg me">' + esc(m.t) + '</div>';
+    return '<div class="msg bot">' + m.t + (m.src && m.src.length ? '<div class="tiny" style="margin-top:7px">source: ' +
+      m.src.map(function(u){ return '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">' + esc(u.replace(/^https?:\/\//, '').slice(0, 46)) + '</a>'; }).join(' \u00b7 ') + '</div>' : '') + '</div>';
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+var CHIPS = ['What is the gold price right now?','Explain the spread','What is the cost hurdle?','Which contracts are tracked?','How does the $100 demo work?','Show the ten-year analysis','Where do the numbers come from?','How does the fake-comment filter work?'];
+function chipHtml(){ return CHIPS.map(function(c){ return '<button class="chip" type="button" data-q="' + esc(c) + '">' + esc(c) + '</button>'; }).join(''); }
+function sendChat(txt){
+  var t = (txt == null ? (q('#chatIn').value || '') : txt).trim();
+  if (!t) return;
+  var h = get(chatKey(), []);
+  h.push({ r:'me', t:t });
+  var an = answer(t);
+  h.push({ r:'bot', t:an.a, src:an.src || [] });
+  put(chatKey(), h.slice(-40));
+  q('#chatIn').value = '';
+  renderChat();
+}
+function stampCtx(){
+  if (!q('#ctxStamp')) return;
+  q('#ctxStamp').textContent = rows().length ? ('live: ' + fmtLong(liveDate()) + ' \u00b7 ' + rows().length + ' rows') : 'no snapshot loaded';
+}
+
+/* ============================================================
+   F. 10-year analysis rendering
+   ============================================================ */
+function anchorInfo(){
+  var d = deepRow('GOLDTEN') || deepRow('GOLDM') || deepRow('GOLDPETAL') || deepRow('GOLDGUINEA');
+  var live = d ? d.pg * 10 : null;                 /* ₹ per 10 g, 999 basis */
+  var end = liveDate() || '2026-10-01';
+  var y0 = new Date(2015, 6, 1).getTime() / 31557600000;   /* mid-2015, 365.25-day years */
+  var y1 = new Date(end + 'T00:00:00').getTime() / 31557600000;
+  var yrs = y1 - y0;
+  return { d:d, live:live, end:end, yrs:yrs,
+    label: d ? (d.code + ' closes ' + fmtLong(d.expiry)) : 'no live row',
+    mult: live ? live / 26343.50 : null,
+    cagr: (live && yrs > 0) ? Math.pow(live / 26343.50, 1 / yrs) - 1 : null,
+    yr24: live ? live / 77913 - 1 : null };
+}
+function renderAnalysis(){
+  if (!q('#histTable')) return;
+  var g = ser('gold'), s = ser('silver'), w = ser('wti');
+  var an = anchorInfo();
+
+  /* KPI strip */
+  if (q('#ancRow')){
+    q('#ancRow').innerHTML =
+      kpi('Live snapshot', an.live ? ('\u20b9' + en(an.live, 0)) : '\u2014', an.d ? (an.label + ' \u00b7 999 basis, per 10 g') : 'waiting on data.json') +
+      kpi('2015 annual average', '\u20b9' + en(26343.50, 0), 'gold 24K per 10 g \u00b7 BankBazaar / MMTC-PAMP') +
+      kpi('Growth since 2015', an.mult ? (en(an.mult, 2) + '\u00d7') : '\u2014', 'computed from the two cited endpoints') +
+      kpi('Implied CAGR', an.cagr != null ? pc(an.cagr * 100, 2) + ' / yr' : '\u2014', 'over ' + en(an.yrs, 2) + ' years \u00b7 computed, not published');
+  }
+
+  /* main table: 2015–2024, all three series present */
+  var yrs = [];
+  for (var y = 2015; y <= 2024; y++) yrs.push(y);
+  q('#histTable').innerHTML = yrs.map(function(y, i){
+    function cell(sr){ var v = valAt(sr, y), pv = valAt(sr, y - 1);
+      var d = (v != null && pv != null) ? (v / pv - 1) * 100 : null;
+      return { v:v, d:d }; }
+    var gc = cell(g), sc = cell(s), wc = cell(w);
+    function td(c, dp){ return '<td class="num">' + (c.v == null ? '\u2014' : (dp === 0 ? en(c.v, 0) : en(c.v, 2))) + '</td>' +
+      '<td class="num ' + cls(c.d) + '">' + (c.d == null ? '\u2014' : pc(c.d, 2)) + '</td>'; }
+    return '<tr><td class="mono">' + y + '</td>' + td(gc, 2) + td(sc, 0) + td(wc, 2) + '</tr>';
+  }).join('');
+  q('#histFoot').innerHTML = '\u00b7 Gold column: 24K domestic annual average (\u20b9/10 g) \u00b7 Silver column: annual average (\u20b9/kg) \u00b7 WTI column: EIA Cushing annual average (US$/bbl). ' +
+    '&Delta; YoY is <b class="gold">computed</b> from consecutive cited years. Ten consecutive years are shown because 2015\u20132024 are complete in all three series; 2025 is published for WTI only and appears below.';
+
+  /* extended / international */
+  var ext = '<div class="table-scroll"><table class="cmp"><thead><tr><th>Year</th><th>Gold \u20b9/10 g</th><th>Silver \u20b9/kg</th><th>WTI US$/bbl</th><th>Note</th></tr></thead><tbody>';
+  ext += '<tr><td class="mono">2025</td><td><span class="notv">not verified</span></td><td><span class="notv">not verified</span></td>' +
+    '<td class="num">' + en(valAt(w, 2025), 2) + '</td><td class="tiny">EIA publishes a 2025 WTI annual average; the gold and silver annual averages were not published when this file was built, so no figure is shown.</td></tr>';
+  ext += '</tbody></table></div><div class="divider"></div>';
+  ext += INTL.map(function(x){
+    return '<p class="tiny" style="margin-bottom:8px"><b class="gold">' + esc(x.k) + '</b> \u2014 ' + esc(x.unit) + '<br>' +
+      x.v.map(function(p){ return p[0] + ': ' + en(p[1], 2); }).join(' \u00b7 ') +
+      '<br><span style="color:#7a7a7a">' + esc(x.note) + '</span> \u00b7 <a href="' + x.u + '" target="_blank" rel="noopener noreferrer">source</a></p>';
+  }).join('');
+  if (q('#extTable')) q('#extTable').innerHTML = ext;
+
+  /* join calculation */
+  if (q('#ancCalc')){
+    q('#ancCalc').innerHTML =
+      '<p class="tiny" style="margin-top:0">The desk\'s live per-gram close is turned into a comparable \u20b9-per-10 g figure and set against the cited annual averages. ' +
+      'Every number in this block is either a cited series value or arithmetic on two of them, and the formula is printed next to it.</p>' +
+      '<div class="table-scroll"><table class="cmp"><thead><tr><th>Comparison</th><th>From (cited)</th><th>To (real snapshot)</th><th>Change</th><th>Basis</th></tr></thead><tbody>' +
+      '<tr><td>Gold \u20b9 per 10 g</td><td class="num">\u20b9' + en(26343.50, 0) + '<div class="tiny">2015 annual avg</div></td>' +
+        '<td class="num">\u20b9' + en(an.live, 0) + '<div class="tiny">' + esc(an.d ? an.d.code : '\u2014') + ' \u00b7 ' + esc(fmtLong(an.end)) + '</div></td>' +
+        '<td class="num">' + (an.mult ? en(an.mult, 2) + '\u00d7 \u00b7 ' + pc(an.cagr * 100, 2) + '/yr CAGR' : '\u2014') + '</td>' +
+        '<td class="tiny">' + en(an.yrs, 2) + ' years \u00b7 CAGR = (' + en(an.live, 0) + '\u00f7' + en(26343.50, 0) + ')^(1/' + en(an.yrs, 2) + ') \u2212 1</td></tr>' +
+      '<tr><td>Gold \u20b9 per 10 g</td><td class="num">\u20b9' + en(77913, 0) + '<div class="tiny">2024 annual avg</div></td>' +
+        '<td class="num">\u20b9' + en(an.live, 0) + '</td><td class="num ' + cls(an.yr24) + '">' + pc(an.yr24 * 100, 2) + '</td>' +
+        '<td class="tiny">simple change against one cited year</td></tr>' +
+      '<tr><td>Silver \u20b9 per kg</td><td class="num">\u20b9' + en(37825, 0) + '<div class="tiny">2015 annual avg</div></td>' +
+        '<td class="num">\u2014</td><td class="num">\u2014</td>' +
+        '<td class="tiny">the loaded snapshot is gold-only, so no silver comparison is made \u2014 nothing is estimated to fill the gap</td></tr>' +
+      '<tr><td>WTI US$ per barrel</td><td class="num">$' + en(48.66, 2) + '<div class="tiny">2015 annual avg</div></td>' +
+        '<td class="num">$' + en(65.39, 2) + '<div class="tiny">2025 annual avg (EIA)</div></td>' +
+        '<td class="num">' + pc((65.39 / 48.66 - 1) * 100, 2) + '</td><td class="tiny">two cited annual averages, computed change</td></tr>' +
+      '</tbody></table></div>';
+  }
+
+  /* sources */
+  if (q('#srcList')){
+    var all = [].concat(g.s, s.s, w.s).concat(INTL.map(function(x){ return { t:x.k + ' \u2014 ' + x.unit, u:x.u }; })).concat([FX_SRC]);
+    q('#srcList').innerHTML = all.map(function(x){
+      return '<p class="tiny" style="margin-bottom:9px">\u00b7 <a href="' + x.u + '" target="_blank" rel="noopener noreferrer">' + esc(x.t) + '</a><br>' +
+        '<span style="color:#6f6f6f">' + esc(x.u) + '</span></p>';
+    }).join('');
+  }
+
+  /* charts */
+  var ys = years(g);
+  if (window.Chart && q('#chHistMetal')){
+    try {
+      if (CH.metal) CH.metal.destroy();
+      if (CH.wti) CH.wti.destroy();
+      var base = { responsive:true, maintainAspectRatio:false, animation:{ duration:500 },
+        plugins:{ legend:{ display:false }, tooltip:{ mode:'index', intersect:false } },
+        scales:{ x:{ grid:{ color:'#1f1f1f' }, ticks:{ color:'#8f8f8f', font:{ family:"'JetBrains Mono', monospace", size:11 } } },
+                 y:{ grid:{ color:'#1f1f1f' }, ticks:{ color:'#8f8f8f', font:{ family:"'JetBrains Mono', monospace", size:11 } } } } };
+      var m = q('#chHistMetal').getContext('2d');
+      var o1 = JSON.parse(JSON.stringify(base));
+      o1.scales.y.ticks.callback = function(v){ return '\u20b9' + en(v, 0); };
+      o1.scales.y.title = { display:true, text:'Gold \u20b9 / 10 g', color:'#6f6f6f' };
+      o1.scales.y1 = { position:'right', grid:{ drawOnChartArea:false }, ticks:{ color:'#8f8f8f', callback:function(v){ return '\u20b9' + en(v, 0); } }, title:{ display:true, text:'Silver \u20b9 / kg', color:'#6f6f6f' } };
+      CH.metal = new Chart(m, { type:'line', data:{ labels:ys, datasets:[
+        { label:'Gold \u20b9/10 g', data:g.v.map(function(p){ return p[1]; }), borderColor:g.c, backgroundColor:'rgba(255,193,7,.12)', fill:true, tension:.25, borderWidth:2.2, pointRadius:3, yAxisID:'y' },
+        { label:'Silver \u20b9/kg', data:s.v.map(function(p){ return p[1]; }), borderColor:s.c, backgroundColor:'rgba(159,211,255,.10)', fill:true, tension:.25, borderWidth:2, pointRadius:3, yAxisID:'y1' } ] }, options:o1 });
+      var o2 = JSON.parse(JSON.stringify(base));
+      o2.scales.y.ticks.callback = function(v){ return '$' + en(v, 0); };
+      o2.scales.y.title = { display:true, text:'US$ / barrel', color:'#6f6f6f' };
+      CH.wti = new Chart(q('#chHistWti').getContext('2d'), { type:'line', data:{ labels:years(w), datasets:[
+        { label:'WTI US$/bbl', data:w.v.map(function(p){ return p[1]; }), borderColor:w.c, backgroundColor:'rgba(255,157,107,.12)', fill:true, tension:.25, borderWidth:2.2, pointRadius:3 } ] }, options:o2 });
+    } catch(e){ /* charts are decorative; a canvas failure must not break the tables */ }
+  }
+  if (q('#lgdMetal')) q('#lgdMetal').innerHTML = '<span><i style="background:' + g.c + '"></i>Gold \u20b9/10 g \u2014 BankBazaar annual average</span><span><i style="background:' + s.c + '"></i>Silver \u20b9/kg \u2014 BankBazaar annual average</span>';
+  if (q('#lgdWti')) q('#lgdWti').innerHTML = '<span><i style="background:' + w.c + '"></i>WTI US$/bbl \u2014 EIA Cushing annual average</span>';
+}
+
+/* ============================================================
+   G. Welcome modal
+   ============================================================ */
+function showWelcome(){ var m = q('#welcomeModal'); if (m) m.classList.remove('hidden'); }
+function hideWelcome(){ var m = q('#welcomeModal'); if (m) m.classList.add('hidden'); }
+
+/* ============================================================
+   H. Instant demo (drives the real signup form, so no auth internals
+      are assumed and the existing PBKDF2 flow stays the only path in)
+   ============================================================ */
+function instantDemo(){
+  var form = q('#signupForm');
+  if (!form){
+    if (typeof window.toast === 'function') window.toast('Signup form not found \u2014 use Create account.', 'err');
+    return;
+  }
+  if (typeof window.switchTab === 'function') window.switchTab('signup');
+  var tag = Math.random().toString(36).slice(2, 7);
+  qa('input', form).forEach(function(inp){
+    var ty = (inp.getAttribute('type') || 'text').toLowerCase();
+    if (ty === 'email') inp.value = 'demo.' + tag + '@goldspread.local';
+    else if (ty === 'password') inp.value = 'Demo@' + tag + '#2026';
+    else if (ty === 'checkbox') inp.checked = true;
+    else if (!inp.value) inp.value = 'Demo ' + tag.toUpperCase();
+  });
+  var go = q('#suSubmit') || q('button[type="submit"]', form);
+  if (go) go.click();
+  else if (typeof window.toast === 'function') window.toast('Could not submit the signup form.', 'err');
+}
+
+/* ============================================================
+   I. Wiring
+   ============================================================ */
+function wire(){
+  /* tabs */
+  qa('.tabbtn').forEach(function(b){ b.addEventListener('click', function(){ setTab(b.getAttribute('data-tab')); }); });
+
+  /* demo */
+  if (q('#dmBuy')) q('#dmBuy').addEventListener('click', function(){ order('buy'); });
+  if (q('#dmSell')) q('#dmSell').addEventListener('click', function(){ order('sell'); });
+  if (q('#dmHalf')) q('#dmHalf').addEventListener('click', function(){
+    var el = q('#dmGrams'); el.value = String(Math.max(0.01, Math.round((parseFloat(el.value) || 0.05) / 2 * 100) / 100)); });
+  if (q('#dmReset')) q('#dmReset').addEventListener('click', function(){
+    var b = blotter();
+    A = { cash:100, pos:{} }; saveAcct(); put(scope(KS.T), []);
+    say('Demo wallet reset to $100.00 of virtual credits' + (b.length ? ' \u2014 ' + b.length + ' old fill' + (b.length === 1 ? '' : 's') + ' cleared from the blotter' : '') + '.', 'ok');
+    showWelcome(); renderDemo();
+  });
+  if (q('#dmWelcomeAgain')) q('#dmWelcomeAgain').addEventListener('click', showWelcome);
+  if (q('#wmGo')) q('#wmGo').addEventListener('click', function(){ hideWelcome(); setTab('demo'); });
+  if (q('#wmClose')) q('#wmClose').addEventListener('click', hideWelcome);
+
+  /* reviews */
+  if (q('#rvPost')) q('#rvPost').addEventListener('click', postReview);
+  if (q('#rvTest')) q('#rvTest').addEventListener('click', function(){
+    q('#rvText').value = 'BUY NOW!!! visit www.fastgoldprofit.com get 500% RETURN GUARANTEED aaaaa guaranteed guaranteed guaranteed';
+    rvSay('A deliberately spammy sample has been typed into the box. Press <b>Post review</b> and watch it get removed with its reason.', '');
+  });
+
+  /* chat */
+  if (q('#chatSend')) q('#chatSend').addEventListener('click', function(){ sendChat(null); });
+  if (q('#chatIn')) q('#chatIn').addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); sendChat(null); } });
+  if (q('#chatClear')) q('#chatClear').addEventListener('click', function(){ put(chatKey(), []); renderChat(); });
+  if (q('#chatChips')) q('#chatChips').innerHTML = chipHtml();
+  document.addEventListener('click', function(e){
+    var el = e.target.closest ? e.target.closest('[data-q]') : null;
+    if (el && el.getAttribute('data-q')){ sendChat(el.getAttribute('data-q')); }
+  });
+
+  /* instant demo */
+  if (q('#instantDemo')) q('#instantDemo').addEventListener('click', instantDemo);
+
+  /* follow the app's own routing without touching it */
+  try {
+    var r = window.route;
+    if (typeof r === 'function'){
+      window.route = function(){ var out = r.apply(this, arguments); sync(); return out; };
+    }
+  } catch(e){}
+  try {
+    var rd = window.renderDashboard;
+    if (typeof rd === 'function'){
+      window.renderDashboard = function(s){ var out = rd.apply(this, arguments); ensureAcct(); sync(); return out; };
+    }
+  } catch(e){}
+}
+
+function sync(){
+  var dv = q('#view-dashboard'), on = dv && !dv.classList.contains('hidden');
+  if (q('#liveStamp')) q('#liveStamp').textContent = rows().length
+    ? ('live snapshot ' + fmtLong(liveDate()) + ' \u00b7 ' + rows().length + ' rows')
+    : 'waiting for data.json';
+  if (!on) return;
+  var sig = liveDate() + '|' + rows().length + '|' + who();
+  if (sig !== LAST_SIG){
+    LAST_SIG = sig;
+    ensureAcct();
+    renderDemo();
+    if (ACTIVE === 'analysis') renderAnalysis();
+    renderReviews();
+  } else if (ACTIVE === 'demo'){
+    renderDemo();
+  }
+  stampCtx();
+}
+
+function boot(){
+  if (!q('#tab-analysis')) return;
+  wire();
+  setTab('desk');
+  sync();
+  setInterval(sync, 1500);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
