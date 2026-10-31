@@ -1,42 +1,36 @@
-# MCX Gold Futures Tracker & Dashboard 📈
+# GoldSpread: MCX Gold Futures Cross-Contract Spread Desk 📈
 
-A lightweight, automated tracking system and web dashboard designed to fetch, log, and visualize live MCX (Multi Commodity Exchange) Gold futures data. 
+A client-side commodity analytics dashboard that normalizes disparate MCX (Multi Commodity Exchange) gold futures contracts (GOLDM, GOLDTEN, GOLDGUINEA, GOLDPETAL) into a single, purity-adjusted ₹/gram basis and evaluates tradeable spreads against realistic transaction cost hurdles.
 
-The repository uses Python scripts to retrieve market data, structure payload logs into JSON, and auto-commit updates using GitHub Actions to present real-time metrics on a simple frontend dashboard.
+🔗 **Live Deployment:** [https://yoursrishiii.github.io/mcx/](https://yoursrishiii.github.io/mcx/)
 
 ---
 
-## 🚀 Key Features
+## ⚡ Key Features
 
-* **Automated Data Fetching:** Python-based scrapers/API integration to pull latest commodity pricing and contract details.
-* **Structured Storage:** Converts dynamic market feeds into structured `JSON` payloads for seamless parsing.
-* **GitHub Actions Automation:** Scheduled workflow executions that regularly commit updated data snapshots directly to the repository.
-* **Interactive Dashboard:** Clean, responsive web UI (HTML/CSS/JS) to monitor real-time trends and historical price shifts.
+- **Purity-Adjusted Normalization:** Automatically adjusts 995-purity contracts (GOLDM) and 999-purity contracts (GOLDTEN, GOLDGUINEA, GOLDPETAL) to a unified ₹/gram of 999 gold.
+- **Cost-Aware Signal Filter:** Evaluates cross-contract basis differences against statutory and market friction (brokerage, turnover charges, GST, stamp duty, and bid-ask slippage).
+- **Data Hygiene Pipeline:** Client-side validation enforcing clean expiry dates, contract types, and outlier checks on MCX Bhavcopy closing data.
+- **Walk-Forward Backtesting:** Multi-fold out-of-sample evaluation testing persistence of spread signals without lookahead bias.
+- **Paper Trading Simulator:** Interactive virtual blotter allowing users to simulate cross-contract execution against authentic exchange settlement snapshots.
 
 ---
 
 ## 🛠 Tech Stack
 
-* **Language:** Python 3.x
-* **Frontend:** HTML5, CSS3, JavaScript
-* **Data Format:** JSON
-* **Automation & CI/CD:** GitHub Actions
-* **Version Control:** Git & GitHub
+- **Front End:** Semantic HTML5, Modern Responsive CSS
+- **Analytical Engine:** Vanilla JavaScript (ES6+)
+- **Charts & Visualization:** HTML5 Canvas API
+- **Data Layer:** Structured MCX Bhavcopy settlement JSON (`data.json`)
+- **Hosting & Version Control:** Git & GitHub Pages
 
 ---
 
-## 📂 Project Structure
+## 🚀 How to Run Locally
 
-```text
-mcx/
-├── .github/
-│   └── workflows/
-│       └── update-data.yml    # Automated scheduled run for updater script
-├── data/
-│   └── mcx_data.json          # Formatted dataset/payload
-├── scripts/
-│   └── fetch_mcx.py           # Core logic for fetching & updating data
-├── index.html                 # Main dashboard interface
-├── style.css                  # UI styling
-├── script.js                  # Frontend data parsing & chart loading
-└── README.md                  # Project documentation
+To test and run this project from a clean clone:
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/yoursrishiii/mcx.git](https://github.com/yoursrishiii/mcx.git)
+   cd mcx
