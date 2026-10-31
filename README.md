@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# mcx
-=======
 # GoldSpread: MCX Gold Futures Cross-Contract Spread Desk 📈
 
 A client-side commodity analytics dashboard that normalizes disparate MCX (Multi Commodity Exchange) gold futures contracts (GOLDM, GOLDTEN, GOLDGUINEA, GOLDPETAL) into a single, purity-adjusted ₹/gram basis and evaluates tradeable spreads against realistic transaction cost hurdles.
